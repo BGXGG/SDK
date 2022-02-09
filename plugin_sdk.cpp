@@ -27,6 +27,7 @@ scheduler_manager* scheduler = nullptr;
 console_manager* console = nullptr;
 glow_manager* glow = nullptr;
 sound_manager* sound = nullptr;
+evade_manager* evade = nullptr;
 
 std::uint16_t locked_target_selector::_last_target_id = 0;
 std::uint32_t locked_target_selector::_last_target_network_id = 0;
