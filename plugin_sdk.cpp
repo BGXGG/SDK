@@ -358,7 +358,7 @@ float game_object::get_immovibility_time( )
 
 bool game_object::is_moving( )
 {
-	auto pc = myhero->get_path_controller( );
+	auto pc = this->get_path_controller( );
 
 	if ( pc )
 		return pc->is_moving( );
@@ -368,7 +368,7 @@ bool game_object::is_moving( )
 
 bool game_object::is_dashing( )
 {
-	auto pc = myhero->get_path_controller( );
+	auto pc = this->get_path_controller( );
 
 	if ( pc )
 		return pc->is_dashing( );
