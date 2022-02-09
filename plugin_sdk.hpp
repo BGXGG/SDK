@@ -3822,7 +3822,11 @@ enum class evade_skillshot_type
 	SkillshotArc
 };
 
-class geometry::polygon;
+namespace geometry
+{
+	class polygon;
+}
+
 struct evade_skillshot_info
 {
 	vector start;
