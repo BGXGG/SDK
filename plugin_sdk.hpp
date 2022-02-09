@@ -120,6 +120,7 @@ champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
 		console		       = PLUGIN_SDK->get_console_manager(); \
 		glow		       = PLUGIN_SDK->get_glow_manager(); \
 		sound		       = PLUGIN_SDK->get_sound_manager(); \
+		evade		       = PLUGIN_SDK->get_evade_manager(); \
 		entitylist		   = PLUGIN_SDK->get_entity_list();
 
 
@@ -2423,6 +2424,14 @@ public:
 	// If not found returns nullptr
 	//
 	virtual game_object_script get_object_by_network_id( std::uint32_t network_id ) = 0;
+
+	// AttackableUnit
+	//
+	// Returns all attackable objects
+	// They are visible and can be attacked
+	//   You don't need to call is_visible and is_valid_target
+	//
+	virtual const std::vector<std::shared_ptr<game_object>>& get_attackable_objects( ) = 0;
 };
 
 namespace TreeHotkeyMode
@@ -3094,6 +3103,7 @@ private:
 	buff_instance_script get_charge_buff( );
 };
 
+class evade_manager;
 class plugin_sdk_core
 {
 public:
@@ -3125,6 +3135,7 @@ public:
 	virtual glow_manager* get_glow_manager( ) = 0;
 	virtual void* get_is_valid_function( ) = 0;
 	virtual sound_manager* get_sound_manager( ) = 0;
+	virtual evade_manager* get_evade_manager( ) = 0;
 	script_spell* register_spell( spellslot slot, float range );
 	bool remove_spell( script_spell* spell );
 };
@@ -3799,6 +3810,63 @@ namespace geometry
 		}
 	};
 }
+
+enum class evade_skillshot_type
+{
+	SkillshotCircle,
+	SkillshotLine,
+	SkillshotMissileLine,
+	SkillshotCone,
+	SkillshotMissileCone,
+	SkillshotRing,
+	SkillshotArc
+};
+
+class geometry::polygon;
+struct evade_skillshot_info
+{
+	vector start;
+	vector end;
+	geometry::polygon polygon;
+	float start_time;
+	float end_time;
+	float spell_data_range;
+	float spell_data_delay;
+	float spell_data_radius;
+	float spell_data_missile_speed;
+	std::string spell_data_name;
+	int spell_data_danger_level;
+	bool spell_data_is_dangerous;
+	evade_skillshot_type skillshot_type;
+};
+
+class evade_manager
+{
+public:
+	virtual void disable_evade( ) = 0;
+	virtual void enable_evade( ) = 0;
+	virtual bool is_evading( ) = 0;
+	virtual bool is_evade_disabled( ) = 0;
+	virtual bool is_dangerous( const vector& pos ) = 0;
+	virtual bool is_dangerous_path( const std::vector<vector>& path, float time, float speed = -1.f, float delay = 0.f ) = 0;
+	virtual const vector& evading_pos( ) = 0;
+	virtual const std::vector<evade_skillshot_info>& get_skillshots( ) = 0;
+	virtual std::vector<vector> get_evade_points( float speed = -1.f, float delay = 0.f, bool blink = false, const vector& destination = vector( ) ) = 0;
+
+	virtual bool register_evade_callbacks( std::function<void( )> _disable_evade,
+	std::function<void( )> _enable_evade,
+	std::function<bool( )> _is_evading,
+	std::function<bool( )> _is_evade_disabled,
+	std::function<bool( const vector& pos )> _is_dangerous,
+	std::function<bool( const std::vector<vector>& path, float time, float speed, float delay )> _is_dangerous_path,
+	std::function<const vector& ( )> _evading_pos,
+	std::function<const std::vector<evade_skillshot_info>& ( )> _get_skillshots,
+	std::function<std::vector<vector>( float speed, float delay, bool blink, const vector& destination )> _get_evade_points ) = 0;
+
+	virtual void unregister_evade_callbacks( ) = 0;
+	virtual bool is_evade_registered( ) = 0;
+};
+extern evade_manager* evade;
 
 namespace antigapcloser
 {
