@@ -1216,6 +1216,30 @@ enum class int_hero_stat
 	TEAM_OBJECTIVE
 };
 
+enum class emote_type: std::int32_t
+{
+	EMOTE_DANCE,
+	EMOTE_TAUNT,
+	EMOTE_LAUGH,
+	EMOTE_JOKE,
+	EMOTE_TOGGLE
+};
+
+enum class summoner_emote_slot: std::uint32_t
+{
+	top = 0,
+	right = 1,
+	bottom = 2,
+	left = 3,
+	middle = 4,
+	start = 5,
+	victory = 6,
+	first_blood = 7,
+	ace = 8,
+	missing = 9,
+	none = 0xFFFFFFFF
+};
+
 class game_object
 {
 public:
@@ -1898,6 +1922,10 @@ public:
 	virtual void send_chat( const char* format, ... ) = 0;
 	virtual game_object_script get_emitter( ) = 0;
 	virtual std::uint32_t get_emitter_resources_hash( ) = 0;
+	
+	virtual bool send_emote( emote_type emote ) = 0;
+	virtual bool display_champ_mastery_badge( ) = 0;
+	virtual void request_to_display_emote( summoner_emote_slot slot ) = 0;
 
 	bool is_valid( bool force = false );
 	
