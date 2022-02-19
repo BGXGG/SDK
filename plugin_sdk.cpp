@@ -1209,84 +1209,256 @@ int prediction_output::aoe_targets_hit_count( )
 
 namespace antigapcloser
 {
-	float detection_delay = 25.f;
+	#define ADD_DASH_DATA_VAR(TYPE, NAME) TYPE NAME = {}; TrackedDashData& set_##NAME( const TYPE& NAME ) { this->NAME = NAME; return *this; }
 
-	std::map<std::uint32_t, float> dash_map;
+	struct TrackedDashData
+	{
+		ADD_DASH_DATA_VAR( std::string, name )
+		ADD_DASH_DATA_VAR( std::string, spell_name )
+
+		ADD_DASH_DATA_VAR( std::uint32_t, required_buffhash )
+		ADD_DASH_DATA_VAR( std::uint32_t, spell_name_hash )
+
+		ADD_DASH_DATA_VAR( bool, wait_for_new_path )
+		ADD_DASH_DATA_VAR( bool, is_dangerous )
+		ADD_DASH_DATA_VAR( bool, is_fixed_range )
+		ADD_DASH_DATA_VAR( bool, is_targeted )
+		ADD_DASH_DATA_VAR( bool, is_inverted )
+		ADD_DASH_DATA_VAR( bool, find_target_by_buffhash )
+		ADD_DASH_DATA_VAR( bool, wait_for_targetable )
+		ADD_DASH_DATA_VAR( bool, is_cc )
+		ADD_DASH_DATA_VAR( bool, is_unstoppable )
+
+		ADD_DASH_DATA_VAR( float, delay )
+		ADD_DASH_DATA_VAR( float, speed )
+		ADD_DASH_DATA_VAR( float, range )
+		ADD_DASH_DATA_VAR( float, min_range )
+		ADD_DASH_DATA_VAR( float, extra_range )
+		ADD_DASH_DATA_VAR( float, add_ms_ratio )
+		ADD_DASH_DATA_VAR( float, always_fixed_delay )
+
+		TrackedDashData( )
+		{
+			this->speed = FLT_MAX;
+			this->spell_name_hash = spell_hash_real( spell_name.c_str( ) );
+		}
+	};
+
+	struct TrackedDash
+	{
+		game_object_script sender;
+		game_object_script target;
+
+		const TrackedDashData* dash_data;
+
+		float start_time;
+		float end_time;
+		float speed;
+
+		vector start_position;
+		vector end_position;
+
+		bool is_finished_detecting;
+
+		TrackedDash( )
+		{
+			this->sender = nullptr;
+			this->target = nullptr;
+
+			this->dash_data = nullptr;
+
+			this->start_time = 0;
+			this->end_time = 0;
+			this->speed = 0;
+
+			this->is_finished_detecting = false;
+		}
+	};
+	
+	std::vector< TrackedDash > detected_dashes;
+	std::vector< TrackedDashData > dashes_data;
+	
 	std::vector<void*> p_handlers;
 
-	void on_update( )
+	TrackedDashData& add_dash( const std::string& spell_name, float range, float speed )
 	{
-		for ( auto&& target : entitylist->get_enemy_heroes( ) )
+		TrackedDashData data;
+		data.spell_name = spell_name;
+		data.range = range;
+		data.speed = speed;
+
+		dashes_data.push_back( data );
+
+		return dashes_data[ dashes_data.size( ) - 1 ];
+	}
+
+	void OnProcessSpellCast( game_object_script sender, spell_instance_script spell )
+	{
+		if ( sender->is_enemy( ) )
 		{
-			if ( dash_map.find( target->get_network_id( ) ) == dash_map.end( ) || !target->is_valid_target( ) )
+			auto name = spell->get_spell_data( )->get_name( );
+			auto it = std::find_if( dashes_data.begin( ), dashes_data.end( ), [&name]( const TrackedDashData& x ) { return x.spell_name == name; } );
+
+			if ( it != dashes_data.end( ) )
 			{
-				continue;
-			}
+				game_object_script target = spell->get_last_target_id( ) != 0 && it->is_targeted
+					? entitylist->get_object( spell->get_last_target_id( ) ) 
+					: nullptr;
 
-			//wait 25ms for buffs to trigger
-			if ( gametime->get_time( ) - dash_map[ target->get_network_id( ) ] < detection_delay / 1000.f )
-			{
-				continue;
-			}
-
-			auto path_controller = target->get_path_controller( );
-
-			if ( path_controller != nullptr && path_controller->is_dashing( ) && path_controller->is_moving( ) )
-			{
-				auto start = path_controller->get_start_vec( );
-				auto end = path_controller->get_end_vec( );
-
-				if ( start.distance( target->get_position( ) ) > target->get_bounding_radius( ) + 30 )
+				if ( it->find_target_by_buffhash )
 				{
-					auto is_grab = bool( ( int ) target->get_action_state( ) & ( 1 << 27 ) );
-
-					for ( auto&& buff : target->get_bufflist( ) )
+					for ( auto&& t : sender->is_ally( ) ? entitylist->get_enemy_heroes( ) : entitylist->get_ally_heroes( ) )
 					{
-						if ( buff != nullptr && buff->is_valid( ) && buff->is_alive( ) )
+						if ( t->is_valid_target( ) && t->has_buff( it->required_buffhash ) )
 						{
-							game_object_script buff_caster = nullptr;
-
-							if ( buff_caster = buff->get_caster( ), buff_caster != nullptr && buff_caster->is_ally( ) )
-							{
-								switch ( buff->get_hash_name( ) )
-								{
-									//buff_hash doesnt evaluate to constant in C++ older than 17
-									case buff_hash_real( "plantsatchelknockback" ):
-										is_grab = false;
-										continue;
-
-										//buff_hash doesnt evaluate to constant in C++ older than 17
-									case buff_hash_real( "ThreshQ" ):
-										is_grab = true;
-										break;
-								}
-
-								if ( buff->get_type( ) == buff_type::Knockback )
-								{
-									is_grab = true;
-									break;
-								}
-							}
-						}
-					}
-
-					for ( auto const& callback : p_handlers )
-					{
-						if ( callback != nullptr )
-						{
-							reinterpret_cast< gapcloser_handler >( callback )( target, start, end, path_controller->get_dash_speed( ), is_grab );
+							target = t;
+							break;
 						}
 					}
 				}
+
+				if ( it->is_targeted && target == nullptr )
+				{
+					return;
+				}
+
+				if ( target && it->required_buffhash && !target->has_buff( it->required_buffhash ) )
+				{
+					return;
+				}
+
+				auto start = spell->get_start_position( );
+				auto end = spell->get_end_position( );
+
+				if ( it->min_range > 0 && start.distance_squared( end ) < std::powf( it->min_range, 2 ) )
+				{
+					end = start.extend( end, it->min_range );
+				}
+
+				if ( it->is_fixed_range || start.distance_squared( end ) > std::powf( it->range, 2 ) )
+				{
+					end = start.extend( end, it->range );
+				}
+
+				if ( it->is_inverted )
+				{
+					end = start - ( end - start );
+				}
+
+				if ( target && !it->is_fixed_range )
+				{
+					end = target->get_position( );
+				}
+
+				if ( it->extra_range > 0 )
+				{
+					end = end.extend( start, -it->extra_range );
+				}
+
+				TrackedDash new_dash;
+				new_dash.sender = sender;
+				new_dash.target = target;
+				new_dash.dash_data = it._Ptr;
+				new_dash.start_position = start;
+				new_dash.end_position = end;
+				new_dash.speed = it->speed + sender->get_move_speed( ) * it->add_ms_ratio;
+
+				if ( it->always_fixed_delay > 0 )
+					new_dash.speed = new_dash.start_position.distance( new_dash.end_position ) / it->always_fixed_delay;
+		
+				new_dash.start_time = gametime->get_time( );
+				new_dash.end_time = new_dash.start_time + it->delay + start.distance( end ) / new_dash.speed;
+
+				if ( it->wait_for_targetable )
+					new_dash.end_time = new_dash.start_time + 2.5f;
+
+				new_dash.is_finished_detecting = !it->wait_for_new_path && !it->wait_for_targetable;
+
+				detected_dashes.push_back( new_dash );
 			}
 		}
 	}
 
-	void on_new_path( game_object_script sender, const std::vector<vector>& path, bool is_dash, float dash_speed )
+	void OnNewPath( game_object_script sender, const std::vector<vector>& path, bool is_dash, float dash_speed )
 	{
-		if ( is_dash && sender->is_ai_hero( ) )
+		if ( is_dash )
 		{
-			dash_map[ sender->get_network_id( ) ] = gametime->get_time( );
+			float length = path.size( ) > 1 ? geometry::geometry::path_length( path ) : 0;
+
+			for ( TrackedDash& dash : detected_dashes )
+			{
+				if ( dash.is_finished_detecting || !dash.dash_data->wait_for_new_path || sender != dash.sender ) continue;
+
+				dash.start_time = gametime->get_time( ) - dash.dash_data->delay;
+				dash.end_time = gametime->get_time( ) + length / dash_speed;
+				dash.start_position = path.front( );
+				dash.end_position = path.back( );
+				dash.speed = dash_speed;
+				dash.is_finished_detecting = true;
+			}
+		}
+	}
+	
+	void OnUpdate( )
+	{
+		detected_dashes.erase( std::remove_if( detected_dashes.begin( ), detected_dashes.end( ), []( const TrackedDash& dash )
+		{
+			return gametime->get_time( ) >= dash.end_time;
+		} ), detected_dashes.end( ) );
+
+		for ( TrackedDash& dash : detected_dashes )
+		{
+			if ( dash.is_finished_detecting || !dash.dash_data->wait_for_targetable ) continue;
+			if ( gametime->get_time( ) - dash.start_time < 0.15f ) continue;
+
+			if ( dash.sender->is_targetable( ) )
+			{
+				if ( dash.sender->get_distance( myhero ) > 150 )
+				{
+					dash.end_time = gametime->get_time( ) - 0.1f; //delete Elise E dash, it was not casted on me
+					continue;
+				}
+
+				dash.end_position = dash.sender->get_position( );
+
+				if ( dash.dash_data->always_fixed_delay > 0 )
+					dash.speed = dash.start_position.distance( dash.end_position ) / dash.dash_data->always_fixed_delay;
+
+				dash.start_time = gametime->get_time( );
+				dash.end_time = dash.start_time + dash.dash_data->always_fixed_delay;
+				dash.is_finished_detecting = true;
+			}
+		}
+		
+		for ( const TrackedDash& dash : detected_dashes )
+		{
+			if ( !dash.is_finished_detecting || !dash.sender->is_valid_target( ) ) continue;
+			if ( ( dash.target == nullptr || !dash.target->is_me( ) ) && dash.sender->get_distance( myhero ) > 500 ) continue;
+
+			antigapcloser_args args;
+			args.type = gapcloser_type::skillshot;
+			args.target = dash.target;
+			args.start_time = dash.start_time;
+			args.end_time = dash.end_time;
+			args.speed = dash.speed;
+			args.start_position = dash.start_position;
+			args.end_position = dash.end_position;
+			args.is_unstoppable = dash.dash_data->is_unstoppable;
+			args.is_cc = dash.dash_data->is_cc;
+						
+			if ( !dash.dash_data->name.empty( ) )
+				args.type = gapcloser_type::item;
+			
+			if ( dash.target != nullptr && dash.target->is_me( ) )
+				args.type = gapcloser_type::targeted;
+			
+			for ( auto const& callback : p_handlers )
+			{
+				if ( callback != nullptr )
+				{
+					reinterpret_cast< gapcloser_handler >( callback )( dash.sender, &args );
+				}
+			}
 		}
 	}
 
@@ -1301,8 +1473,239 @@ namespace antigapcloser
 
 		if ( p_handlers.size( ) == 1 )
 		{
-			event_handler<events::on_update>::add_callback( on_update );
-			event_handler<events::on_new_path>::add_callback( on_new_path );
+			add_dash( "3152Active", 300.f, 1150.f ).set_name( "Hextech Rocketbelt" ).set_is_fixed_range( true );
+			add_dash( "6671Cast", 425.f, 1350.f ).set_name( "Prowler's Claw" ).set_min_range( 200.f );
+			add_dash( "6693Active", 500.f, 2000.f ).set_name( "Galeforce" ).set_is_targeted( true ).set_delay( 0.2f );
+
+			for ( auto& hero : entitylist->get_enemy_heroes( ) )
+			{
+				switch ( hero->get_champion( ) )
+				{
+					case champion_id::Aatrox:
+						add_dash( "AatroxE", 300.f, 800.f ).set_wait_for_new_path( true );
+						break;
+					case champion_id::Ahri:
+						add_dash( "AhriTumble", 500.f, 1200.f ).set_is_fixed_range( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Akali:
+						add_dash( "AkaliE", 350.f, 1400.f ).set_is_fixed_range( true ).set_is_inverted( true ).set_delay( 0.2f );
+						add_dash( "AkaliEb", FLT_MAX, 1700.f ).set_is_targeted( true ).set_required_buffhash( buff_hash("AkaliEMis") ).set_find_target_by_buffhash( true );
+						add_dash( "AkaliR", 750.f, 1500.f ).set_is_fixed_range( true );
+						add_dash( "AkaliRb", 800.f, 3000.f ).set_is_fixed_range( true );
+						break;
+					case champion_id::Alistar:
+						add_dash( "Headbutt", 650.f, 1500.f ).set_is_targeted( true ).set_is_cc( true );
+						break;
+					case champion_id::Caitlyn:
+						add_dash( "CaitlynE", 390.f, 1000.f ).set_is_fixed_range( true ).set_is_inverted( true ).set_delay( 0.15f );
+						break;
+					case champion_id::Camille:
+						add_dash( "CamilleEDash2", 800.f, 1050.f ).set_is_cc( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Corki:
+						add_dash( "CarpetBomb", 600.f, 650.f ).set_min_range( 300.f ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Diana:
+						add_dash( "DianaTeleport", 825.f, 2500.f ).set_is_targeted( true );
+						break;
+					case champion_id::Ekko:
+						add_dash( "EkkoEAttack", 600.f, 2000.f ).set_is_targeted( true ).set_delay( 0.1f );
+						break;
+					case champion_id::Elise:
+						add_dash( "EliseSpiderQCast", 475.f, 1200.f ).set_is_targeted( true );
+						add_dash( "EliseSpiderE", 700.f, 1000.f ).set_is_targeted( true ).set_wait_for_targetable( true ).set_always_fixed_delay( 0.5f );
+						break;
+					case champion_id::Evelynn:
+						add_dash( "EvelynnE2", 400.f, 1900.f ).set_is_targeted( true );
+						break;
+					case champion_id::Fiora:
+						add_dash( "FioraQ", 450.f, 500.f ).set_add_ms_ratio( 2.f );
+						break;
+					case champion_id::Fizz:
+						add_dash( "FizzQ", 550.f, 1400.f ).set_is_fixed_range( true ).set_is_targeted( true );
+						break;
+					case champion_id::Galio:
+						add_dash( "GalioE", 650.f, 2300.f ).set_is_cc( true ).set_delay( 0.4f );
+						break;
+					case champion_id::Gnar:
+						add_dash( "GnarE", 475.f, 900.f );
+						add_dash( "GnarBigE", 675.f, 1165.f );
+						break;
+					case champion_id::Gragas:
+						add_dash( "GragasE", 600.f, 900.f ).set_is_cc( true ).set_is_fixed_range( true );
+						break;
+					case champion_id::Graves:
+						add_dash( "GravesMove", 375.f, 1150.f ).set_wait_for_new_path( true );
+						break;
+					case champion_id::Gwen:
+						add_dash( "GwenE", 350.f, 1050.f ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Hecarim:
+						add_dash( "HecarimRampAttack", 900.f, 1200.f ).set_is_cc( true ).set_is_targeted( true );
+						add_dash( "HecarimUlt", 1000.f, 1100.f ).set_is_cc( true ).set_is_unstoppable( true ).set_min_range( 300.f );
+						break;
+					case champion_id::Illaoi:
+						add_dash( "IllaoiWAttack", 300.f, 800.f ).set_is_targeted( true );
+						break;
+					case champion_id::Irelia:
+						add_dash( "IreliaQ", 600.f, 1400.f ).set_is_targeted( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::JarvanIV:
+						add_dash( "JarvanIVDragonStrike", 850.f, 2000.f ).set_is_cc( true ).set_wait_for_new_path( true ).set_delay( 0.4f );
+						break;
+					case champion_id::Jax:
+						add_dash( "JaxLeapStrike", 700.f, 1600.f ).set_is_targeted( true );
+						break;
+					case champion_id::Jayce:
+						add_dash( "JayceToTheSkies", 600.f, 1000.f ).set_is_targeted( true );
+						break;
+					case champion_id::Kaisa:
+						add_dash( "KaisaR", 3000.f, 3700.f );
+						break;
+					case champion_id::Kayn:
+						add_dash( "KaynQ", 350.f, 1150.f );
+						add_dash( "KaynRJumpOut", 500.f, 1200.f ).set_wait_for_new_path( true ).set_delay( 3.f );
+						break;
+					case champion_id::Khazix:
+						add_dash( "KhazixE", 700.f, 1250.f );
+						add_dash( "KhazixELong", 850.f, 1250.f );
+						break;
+					case champion_id::Kindred:
+						add_dash( "KindredQ", 300.f, 500.f ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Kled:
+						add_dash( "KledRiderQ", 300.f, 1000.f ).set_is_inverted( true ).set_delay( 0.25f );
+						add_dash( "KledEDash", 700.f, 600.f ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Leblanc:
+						add_dash( "LeblancW", 600.f, 1450.f );
+						add_dash( "LeblancRW", 600.f, 1450.f );
+						break;
+					case champion_id::LeeSin:
+						add_dash( "BlindMonkQTwo", 2000.f, 2000.f ).set_is_targeted( true ).set_required_buffhash( buff_hash( "BlindMonkQOne" ) ).set_find_target_by_buffhash( true );
+						add_dash( "BlindMonkWOne", 700.f, 1350.f ).set_is_targeted( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Leona:
+						add_dash( "LeonaZenithBlade", 900.f, 1300.f ).set_is_cc( true ).set_always_fixed_delay( 0.75f );
+						break;
+					case champion_id::Lillia:
+						add_dash( "LilliaW", 500.f, 1000.f ).set_always_fixed_delay( 0.8f );
+						break;
+					case champion_id::Lucian:
+						add_dash( "LucianE", 475.f, 1350.f ).set_wait_for_new_path( true );
+						break;
+					case champion_id::Malphite:
+						add_dash( "UFSlash", 1000.f, 1500.f ).set_is_cc( true ).set_is_unstoppable( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Maokai:
+						add_dash( "MaokaiW", 525.f, 1300.f ).set_is_cc( true ).set_is_unstoppable( true ).set_is_targeted( true );
+						break;
+					case champion_id::MonkeyKing:
+						add_dash( "MonkeyKingNimbus", 625.f, 1050.f ).set_is_targeted( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Nidalee:
+						add_dash( "Pounce", 750.f, 950.f ).set_wait_for_new_path( true ).set_min_range( 350.f );
+						break;
+					case champion_id::Ornn:
+						add_dash( "OrnnE", 650.f, 1600.f ).set_is_cc( true ).set_is_fixed_range( true ).set_delay( 0.35f );
+						break;
+					case champion_id::Pantheon:
+						add_dash( "PantheonW", 600.f, 1100.f ).set_is_cc( true ).set_is_targeted( true );
+						break;
+					case champion_id::Poppy:
+						add_dash( "PoppyE", 475.f, 1800.f ).set_is_cc( true ).set_is_targeted( true );
+						break;
+					case champion_id::Pyke:
+						add_dash( "PykeE", 550.f, 2000.f ).set_is_cc( true ).set_is_fixed_range( true );
+						break;
+					case champion_id::Qiyana:
+						add_dash( "QiyanaE", 550.f, 1100.f ).set_is_fixed_range( true ).set_is_targeted( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Rakan:
+						add_dash( "RakanW", 650.f, 1700.f ).set_is_cc( true ).set_always_fixed_delay( 0.85f );
+						break;
+					case champion_id::Rammus:
+						add_dash( "Tremors2", 1500.f, 1000.f ).set_is_unstoppable( true ).set_always_fixed_delay( 0.85f );
+						break;
+					case champion_id::RekSai:
+						add_dash( "RekSaiEBurrowed", 800.f, 800.f ).set_is_fixed_range( true );
+						break;
+					case champion_id::Rell:
+						add_dash( "RellW_Dismount", 500.f, 1000.f ).set_is_cc( true ).set_always_fixed_delay( 0.85f );
+						break;
+					case champion_id::Renekton:
+						add_dash( "RenektonDice", 450.f, 760.f ).set_is_fixed_range( true ).set_add_ms_ratio( 1.f );
+						add_dash( "RenektonSliceAndDice", 450.f, 760.f ).set_is_fixed_range( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Riven:
+						add_dash( "RivenFeint", 250.f, 1200.f ).set_is_fixed_range( true );
+						break;
+					case champion_id::Samira:
+						add_dash( "SamiraE", 650.f, 1600.f ).set_is_fixed_range( true ).set_is_targeted( true );
+						break;
+					case champion_id::Sejuani:
+						add_dash( "SejuaniQ", 650.f, 1000.f ).set_is_cc( true );
+						break;
+					case champion_id::Shen:
+						add_dash( "ShenE", 600.f, 800.f ).set_is_cc( true ).set_min_range( 300.f ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Shyvana:
+						add_dash( "ShyvanaTransformLeap", 950.f, 1100.f ).set_is_unstoppable( true );
+						break;
+					case champion_id::Sylas:
+						add_dash( "SylasW", 400.f, 1450.f ).set_is_targeted( true );
+						add_dash( "SylasE2", 800.f, 1950.f ).set_is_cc( true );
+						add_dash( "SylasE", 400.f, 1450.f );
+						break;
+					case champion_id::Talon:
+						add_dash( "TalonQ", 575.f, 1600.f ).set_is_targeted( true );
+						break;
+					case champion_id::Tristana:
+						add_dash( "TristanaW", 900.f, 1100.f ).set_delay( 0.25f );
+						break;
+					case champion_id::Tryndamere:
+						add_dash( "TryndamereE", 660.f, 900.f );
+						break;
+					case champion_id::Urgot:
+						add_dash( "UrgotE", 450.f, 1200.f ).set_is_cc( true ).set_is_fixed_range( true ).set_delay( 0.45f ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Vayne:
+						add_dash( "VayneTumble", 300.f, 500.f ).set_is_fixed_range( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Vi:
+						add_dash( "ViQ", 725.f, 1400.f ).set_is_cc( true ).set_wait_for_new_path( true );
+						break;
+					case champion_id::Viego:
+						add_dash( "ViegoR", 500.f, 1000.f ).set_is_unstoppable( true ).set_always_fixed_delay( 0.6f );
+						add_dash( "ViegoW", 300.f, 1000.f ).set_is_cc( true ).set_is_fixed_range( true );
+						break;
+					case champion_id::Volibear:
+						add_dash( "VolibearR", 700.f, 1000.f ).set_is_unstoppable( true ).set_always_fixed_delay( 1.f );
+						break;
+					case champion_id::XinZhao:
+						add_dash( "XinZhaoEDash", 1100.f, 2500.f ).set_is_targeted( true );
+						break;
+					case champion_id::Yasuo:
+						add_dash( "YasuoEDash", 475.f, 750.f ).set_is_fixed_range( true ).set_is_targeted( true ).set_add_ms_ratio( 0.875f );
+						break;
+					case champion_id::Yone:
+						add_dash( "YoneE", 300.f, 1200.f ).set_is_fixed_range( true );
+						break;
+					case champion_id::Zac:
+						add_dash( "ZacE", 1800.f, 1000.f ).set_wait_for_new_path( true );
+						break;
+					case champion_id::Zed:
+						add_dash( "ZedR", 625.f, 1000.f ).set_is_targeted( true ).set_always_fixed_delay( 1.6f );
+						break;
+					case champion_id::Zeri:
+						add_dash( "ZeriE", 2000.f, 600.f ).set_wait_for_new_path( true ).set_add_ms_ratio( 1.f );
+						break;
+				}
+			}
+			
+			event_handler< events::on_new_path >::add_callback( OnNewPath );
+			event_handler< events::on_process_spell_cast >::add_callback( OnProcessSpellCast );
+			event_handler< events::on_update >::add_callback( OnUpdate );
 		}
 	}
 
@@ -1317,8 +1720,9 @@ namespace antigapcloser
 
 		if ( p_handlers.empty( ) )
 		{
-			event_handler<events::on_update>::remove_handler( on_update );
-			event_handler<events::on_new_path>::remove_handler( on_new_path );
+			event_handler< events::on_new_path >::remove_handler( OnNewPath );
+			event_handler< events::on_process_spell_cast >::remove_handler( OnProcessSpellCast );
+			event_handler< events::on_update >::remove_handler( OnUpdate );
 		}
 	}
 }
