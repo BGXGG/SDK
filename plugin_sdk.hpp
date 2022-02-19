@@ -854,6 +854,7 @@ enum class champion_id
 	Akshan = 166,
 	Vex = 711,
 	Zeri = 221,
+	Renata = 888,
 	Unknown = 5000,
 	TFTChampion,
 	SG_Skarner,
@@ -1457,7 +1458,7 @@ public:
 	//	- id of the perk
 	//
 	virtual bool has_perk( uint32_t id ) = 0;
-	
+
 	//Returns a buff with a given hash name otherwise nullptr.
 	//	- hashed buff name
 	//
@@ -1922,7 +1923,7 @@ public:
 	virtual void send_chat( const char* format, ... ) = 0;
 	virtual game_object_script get_emitter( ) = 0;
 	virtual std::uint32_t get_emitter_resources_hash( ) = 0;
-	
+
 	virtual bool send_emote( emote_type emote ) = 0;
 	virtual bool display_champ_mastery_badge( ) = 0;
 	virtual void request_to_display_emote( summoner_emote_slot slot ) = 0;
@@ -3902,11 +3903,37 @@ extern evade_manager* evade;
 
 namespace antigapcloser
 {
-	typedef void( *gapcloser_handler )( game_object_script sender, vector const& dash_start, vector const& dash_end, float dash_speed, bool is_ally_grab );
+	enum class gapcloser_type
+	{
+		skillshot,
+		targeted,
+		item
+	};
 
-	//detection delay in ms
-	//default 25ms
-	extern float detection_delay;
+	struct antigapcloser_args
+	{
+		gapcloser_type type;
+		game_object_script target;
+
+		float start_time;
+		float end_time;
+		float speed;
+
+		vector start_position;
+		vector end_position;
+
+		bool is_unstoppable;
+		bool is_cc;
+
+		antigapcloser_args( ) : type( gapcloser_type::skillshot ), target( nullptr ), 
+								start_time( 0.f ), end_time( 0.f ), speed( 0.f ),
+								is_unstoppable( false ), is_cc( false )
+		{
+
+		}
+	};
+
+	typedef void( *gapcloser_handler )( game_object_script sender, antigapcloser_args* args );
 
 	void add_event_handler( gapcloser_handler p_handler );
 	void remove_event_handler( gapcloser_handler p_handler );
