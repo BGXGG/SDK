@@ -2342,7 +2342,8 @@ class prediction_manager
 {
 public:
 	virtual prediction_output get_prediction( prediction_input* input ) = 0;
-	virtual uintptr_t add_prediction_callback( std::string _name, std::function<prediction_output( prediction_input* input )> _callback ) = 0;
+	virtual std::vector<game_object_script> get_collision( const std::vector<vector>& positions, prediction_input* input ) = 0;
+	virtual uintptr_t add_prediction_callback( std::string _name, std::function<prediction_output( prediction_input* input )> _callback, std::function<std::vector<game_object_script>( const std::vector<vector>& positions, prediction_input* input )> _callback2 ) = 0;
 	virtual uintptr_t get_active_prediction_selector( ) = 0;
 	virtual void remove_prediction_callback( uintptr_t id ) = 0;
 	virtual void remove_prediction_callback( std::string _name ) = 0;
@@ -3125,7 +3126,7 @@ public:
 	int8_t icon_index( );
 	game_object_script get_target( float extra_range = 0 );
 	prediction_output get_prediction( game_object_script target, vector origin, vector range_check_from );
-
+	std::vector<game_object_script> get_collision( const vector& from, const std::vector<vector>& to_pos, float speedOverride = -1, float delayOverride = -1, float radiusOverride = -1 );
 private:
 	float last_cast_spell = 0.f;
 
