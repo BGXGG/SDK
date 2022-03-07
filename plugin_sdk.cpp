@@ -521,7 +521,9 @@ bool game_object::is_in_auto_attack_range_native( game_object* to, float additio
 
 	if ( this->is_ai_turret( ) )
 		attack_range += 775.f;
-	else
+	else if ( this->is_ai_hero( ) && this->get_champion( ) == champion_id::Zeri )
+		attack_range += 500.f;
+	else 
 		attack_range += this->get_attack_range( );
 
 	vector to_position = to->get_position( );
@@ -2495,6 +2497,21 @@ prediction_output script_spell::get_prediction( game_object_script target, bool 
 	x.use_bounding_radius = this->type != skillshot_type::skillshot_circle;
 
 	return prediction->get_prediction( &x );
+}
+
+std::vector<game_object_script> script_spell::get_collision( const vector& from, const std::vector<vector>& to_pos, float speedOverride, float delayOverride, float radiusOverride )
+{
+	prediction_input x;
+	x._from = from;
+	x.delay = delayOverride > 0 ? delayOverride : this->delay;
+	x.speed = speedOverride > 0 ? speedOverride : this->speed;
+	x.radius = radiusOverride > 0 ? radiusOverride : this->radius;
+	x.collision_objects = this->collision_flags;
+	x.range = this->range( );
+	x.type = this->type;
+	x.spell_slot = this->slot;
+
+	return prediction->get_collision( to_pos, &x );
 }
 
 prediction_output script_spell::get_prediction_no_collision( game_object_script target, bool aoe, float overrideRange )
