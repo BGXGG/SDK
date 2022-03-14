@@ -1044,6 +1044,8 @@ public:
 	virtual std::uint32_t SelectionPriority( ) = 0;
 	virtual const char* mVOEventCategory( ) = 0;
 	virtual float mSpellCooldownOrSealedQueueThreshold( ) = 0;
+	virtual std::vector<const char*> mSpellTags( ) = 0;
+	virtual std::vector<const char*> mImgIconName( ) = 0;
 };
 
 class spell_data_inst
