@@ -325,6 +325,18 @@ public:
 };
 
 class game_object;
+
+class vector4
+{
+public:
+	float x;
+	float y;
+	float z;
+	float w;
+	vector4( ) : x( 0.f ), y( 0.f ), z( 0.f ), w( 0.f ) { }
+	vector4( float x, float y, float z, float w ): x( x ), y( y ), z( z ), w( w ) { }
+};
+
 class vector
 {
 public:
@@ -902,6 +914,9 @@ class perk
 public:
 	virtual int32_t get_id( ) = 0;
 	virtual std::string get_name( ) = 0;
+	virtual float get_stack_value( ) = 0;
+	virtual float get_max_stack_value( ) = 0;
+	virtual std::uint32_t* get_texture( ) = 0;
 };
 
 class object_type
@@ -1092,6 +1107,7 @@ public:
 	virtual float get_remaining_time( ) = 0;
 	virtual game_object_script get_caster( ) = 0;
 	virtual const char* get_name_cstr( ) = 0;
+	virtual std::uint32_t* get_texture( ) = 0;
 };
 
 class item
@@ -1099,6 +1115,12 @@ class item
 public:
 	virtual char get_item_count( ) = 0;
 	virtual int32_t get_item_id( ) = 0;
+	/*
+		Usage:
+			auto texture_info = item->get_texture( );
+			draw_manager->add_image( texture_info.first, { 10,10 }, { 50,50 }, 0.f, { texture_info.second.x,texture_info.second.y }, { texture_info.second.z, texture_info.second.w } );
+	*/
+	virtual std::pair<std::uint32_t*, vector4> get_texture( std::uint32_t index = 0 ) = 0;
 };
 
 class path_controller
