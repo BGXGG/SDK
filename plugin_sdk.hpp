@@ -121,6 +121,7 @@ champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
 		glow		       = PLUGIN_SDK->get_glow_manager(); \
 		sound		       = PLUGIN_SDK->get_sound_manager(); \
 		evade		       = PLUGIN_SDK->get_evade_manager(); \
+		camp_manager	   = PLUGIN_SDK->get_neutral_camp_manager(); \
 		entitylist		   = PLUGIN_SDK->get_entity_list();
 
 
@@ -2486,6 +2487,13 @@ public:
 	//   You don't need to call is_visible and is_valid_target
 	//
 	virtual const std::vector<std::shared_ptr<game_object>>& get_attackable_objects( ) = 0;
+	
+	// AttackableUnit
+	//
+	// Returns attackable unit under your mouse
+	// Can return nullptr if there is no object
+	//
+	virtual std::shared_ptr<game_object> get_hovered_object( ) = 0;
 };
 
 namespace TreeHotkeyMode
@@ -2837,6 +2845,7 @@ enum class events
 	on_preupdate,
 	on_play_animation,
 	on_network_packet,
+	on_reconnect,
 	events_size
 };
 
@@ -3157,6 +3166,42 @@ private:
 	buff_instance_script get_charge_buff( );
 };
 
+namespace neutral_camp_id
+{
+	enum
+	{
+		Blue_Order = 1,
+		Wolves_Order,
+		Raptors_Order,
+		Red_Order,
+		Krugs_Order,
+		Dragon,
+		Blue_Chaos,
+		Wolves_Chaos,
+		Raptors_Chaos,
+		Red_Chaos,
+		Krugs_Chaos,
+		Baron,
+		Gromp_Order,
+		Gromp_Chaos,
+		Crab_Bottom,
+		Crab_Top,
+		Herlad,
+		Max_Camps
+	};
+};
+
+class neutral_camp_manager
+{
+public:
+	virtual float get_camp_respawn_time( std::int32_t camp_id ) = 0;
+	virtual void update_camp_respawn_time( std::int32_t camp_id, float time ) = 0;
+	virtual void update_camp_alive_status( std::int32_t camp_id, bool status ) = 0;
+	virtual std::vector<std::uint32_t> get_camp_minions( std::int32_t camp_id ) = 0;
+	virtual vector get_camp_position( std::int32_t camp_id ) = 0;
+	virtual bool get_camp_alive_status( std::int32_t camp_id ) = 0;
+};
+
 class evade_manager;
 class plugin_sdk_core
 {
@@ -3190,6 +3235,7 @@ public:
 	virtual void* get_is_valid_function( ) = 0;
 	virtual sound_manager* get_sound_manager( ) = 0;
 	virtual evade_manager* get_evade_manager( ) = 0;
+	virtual neutral_camp_manager* get_neutral_camp_manager( ) = 0;
 	script_spell* register_spell( spellslot slot, float range );
 	bool remove_spell( script_spell* spell );
 };
@@ -3215,6 +3261,13 @@ struct event_handler<events::on_preupdate>
 {
 	static void add_callback( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_preupdate, ( void* ) callback ); }
 	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_preupdate, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_reconnect>
+{
+	static void add_callback( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_reconnect, ( void* ) callback ); }
+	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_reconnect, ( void* ) callback ); }
 };
 
 template < >
@@ -3370,6 +3423,7 @@ extern scheduler_manager* scheduler;
 extern console_manager* console;
 extern glow_manager* glow;
 extern sound_manager* sound;
+extern neutral_camp_manager* camp_manager;
 
 namespace geometry
 {
