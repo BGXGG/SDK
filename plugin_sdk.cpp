@@ -28,6 +28,7 @@ console_manager* console = nullptr;
 glow_manager* glow = nullptr;
 sound_manager* sound = nullptr;
 evade_manager* evade = nullptr;
+neutral_camp_manager* camp_manager = nullptr;
 
 std::uint16_t locked_target_selector::_last_target_id = 0;
 std::uint32_t locked_target_selector::_last_target_network_id = 0;
@@ -39,6 +40,11 @@ int __stdcall DllMain( void*, unsigned long, void* ) { return 1; }
 PLUGIN_API int get_sdk_version( )
 {
 	return PLUGIN_SDK_VERSION;
+}
+
+PLUGIN_API void on_plugin_reconnect( )
+{
+	myhero = plugin_sdk->get_myhero( );
 }
 
 std::vector<std::unique_ptr<script_spell>> script_spells;
