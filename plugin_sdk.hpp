@@ -249,6 +249,7 @@ class item;
 class spell_instance;
 class object_type;
 class character_data;
+class global_event_params;
 
 #ifdef INTERNAL_CORE
 using game_object_script = std::shared_ptr<game_object>;
@@ -260,6 +261,7 @@ using item_script = std::shared_ptr<item>;
 using spell_instance_script = std::shared_ptr<spell_instance>;
 using object_type_script = std::shared_ptr<object_type>;
 using character_data_script = std::shared_ptr<character_data>;
+using global_event_params_script = std::shared_ptr<global_event_params>;
 #else
 using game_object_script = game_object*;
 using path_controller_script = path_controller*;
@@ -270,6 +272,7 @@ using item_script = item*;
 using spell_instance_script = spell_instance*;
 using object_type_script = object_type*;
 using character_data_script = character_data*;
+using global_event_params_script = global_event_params*;
 #endif
 
 enum class game_state_stage
@@ -2872,6 +2875,7 @@ enum class events
 	on_play_animation,
 	on_network_packet,
 	on_reconnect,
+	on_global_event,
 	events_size
 };
 
@@ -3018,6 +3022,12 @@ public:
 	virtual uintptr_t get_active_damagelib_selector( ) = 0;
 	virtual void remove_damagelib_callback( uintptr_t id ) = 0;
 	virtual void remove_damagelib_callback( std::string _name ) = 0;
+};
+
+class global_event_params
+{
+public:
+	virtual std::int32_t get_argument( std::int32_t index ) = 0;
 };
 
 struct ImVec4
@@ -3325,6 +3335,13 @@ struct event_handler<events::on_network_packet>
 {
 	static void add_callback( void( *callback )( game_object_script sender, std::uint32_t network_id, pkttype_e type, void* args ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_network_packet, ( void* ) callback ); }
 	static void remove_handler( void( *callback )( game_object_script sender, std::uint32_t network_id, pkttype_e type, void* args ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_network_packet, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_global_event>
+{
+	static void add_callback( void( *callback )(std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_global_event, ( void* ) callback ); }
+	static void remove_handler( void( *callback )(std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_global_event, ( void* ) callback ); }
 };
 
 template < >
