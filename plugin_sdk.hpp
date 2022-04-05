@@ -122,6 +122,7 @@ champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
 		sound		       = PLUGIN_SDK->get_sound_manager(); \
 		evade		       = PLUGIN_SDK->get_evade_manager(); \
 		camp_manager	   = PLUGIN_SDK->get_neutral_camp_manager(); \
+		translation	       = PLUGIN_SDK->get_translation_manager(); \
 		entitylist		   = PLUGIN_SDK->get_entity_list();
 
 
@@ -160,13 +161,14 @@ champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
  */
 #define spell_hash(str) (std::integral_constant<std::uint32_t, spell_hash_real(str)>::value)
 
+#define translation_hash(str) (std::integral_constant<std::uint64_t, translation_hash_64_runtime(str)>::value)
 
  /**
   * Same as buff_hash but you can use it in runtime
   *
   * Example: buff_hash_real("ZeriR");
   */
-constexpr std::uint32_t __forceinline const buff_hash_real( const char* str )
+constexpr std::uint32_t const buff_hash_real( const char* str )
 {
 	std::uint32_t hash = 0x811C9DC5;
 	std::uint32_t len = 0;
@@ -193,7 +195,7 @@ constexpr std::uint32_t __forceinline const buff_hash_real( const char* str )
  *
  * Example: spell_hash_real("ZeriR");
  */
-constexpr std::uint32_t __forceinline const spell_hash_real( const char* str ) /*use for script_spell* name*/
+constexpr std::uint32_t const spell_hash_real( const char* str ) /*use for script_spell* name*/
 {
 	std::uint32_t hash = 0;
 	std::uint32_t len = 0;
@@ -213,6 +215,26 @@ constexpr std::uint32_t __forceinline const spell_hash_real( const char* str ) /
 
 		if ( hash & 0xF0000000 )
 			hash ^= (hash & 0xF0000000) ^ ( ( hash & 0xF0000000 ) >> 24 );
+	}
+
+	return hash;
+}
+
+constexpr std::uint64_t const translation_hash_64_runtime( const char* str )
+{
+	std::uint64_t hash = 0xCBF29CE484222325;
+	std::uint32_t len = 0;
+
+	while ( str[ len ] != '\0' )
+		len++;
+
+	for ( auto i = 0u; i < len; ++i )
+	{
+		auto input = str[ i ];
+		if ( !( static_cast< std::uint8_t >( input - 0x41 ) > 0x19u ) )
+			input = input + 0x20;
+
+		hash = 0x100000001B3 * ( hash ^ input );
 	}
 
 	return hash;
@@ -1952,6 +1974,10 @@ public:
 	virtual bool send_emote( emote_type emote ) = 0;
 	virtual bool display_champ_mastery_badge( ) = 0;
 	virtual void request_to_display_emote( summoner_emote_slot slot ) = 0;
+	
+	virtual void send_latency_ping( std::uint16_t latency ) = 0;
+	virtual void send_spell_ping(game_object_script hero, std::int32_t spell ) = 0;
+	virtual void send_hero_ping( game_object_script hero ) = 0;
 
 	bool is_valid( bool force = false );
 	
@@ -3202,6 +3228,22 @@ public:
 	virtual bool get_camp_alive_status( std::int32_t camp_id ) = 0;
 };
 
+class language_info
+{
+public:
+	virtual void add_translation( std::uint64_t key, const std::wstring& value ) = 0;
+	virtual void add_translation( const std::map< std::uint64_t, std::wstring>& translation_map ) = 0;
+	virtual wchar_t* get_translation( std::uint64_t key ) = 0;
+};
+
+class translation_manager
+{
+public:
+	virtual language_info* add_language( const std::string& key, const std::string& display_name ) = 0;
+	virtual bool remove_language( const std::string& key ) = 0;
+	virtual wchar_t* get_translation( std::uint64_t key ) = 0;
+};
+
 class evade_manager;
 class plugin_sdk_core
 {
@@ -3236,6 +3278,7 @@ public:
 	virtual sound_manager* get_sound_manager( ) = 0;
 	virtual evade_manager* get_evade_manager( ) = 0;
 	virtual neutral_camp_manager* get_neutral_camp_manager( ) = 0;
+	virtual translation_manager* get_translation_manager( ) = 0;
 	script_spell* register_spell( spellslot slot, float range );
 	bool remove_spell( script_spell* spell );
 };
@@ -3424,6 +3467,7 @@ extern console_manager* console;
 extern glow_manager* glow;
 extern sound_manager* sound;
 extern neutral_camp_manager* camp_manager;
+extern translation_manager* translation;
 
 namespace geometry
 {
