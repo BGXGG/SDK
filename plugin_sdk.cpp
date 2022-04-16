@@ -2602,6 +2602,10 @@ buff_instance_script script_spell::get_charge_buff( )
 			{
 				return myhero->get_buff( buff_hash( "ViegoW" ) );
 			}
+			case champion_id::Zac:
+			{
+				return myhero->get_buff( buff_hash( "ZacE" ) );
+			}
 			default:
 				return nullptr;
 		}
