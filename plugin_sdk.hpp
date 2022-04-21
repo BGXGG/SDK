@@ -1291,6 +1291,16 @@ enum class summoner_emote_slot: std::uint32_t
 	none = 0xFFFFFFFF
 };
 
+enum class per_level_stat_type: std::int32_t
+{
+	health,
+	mana_regen,
+	attack_damage,
+	armor,
+	magic_resist,
+	crit = 6
+};
+
 class game_object
 {
 public:
@@ -1981,6 +1991,10 @@ public:
 	virtual void send_latency_ping( std::uint16_t latency ) = 0;
 	virtual void send_spell_ping(game_object_script hero, std::int32_t spell ) = 0;
 	virtual void send_hero_ping( game_object_script hero ) = 0;
+	
+	virtual float get_base_hp( ) = 0;
+	virtual float get_base_mana( ) = 0;
+	virtual float get_stat_for_level( per_level_stat_type stat, std::int32_t level ) = 0;
 
 	bool is_valid( bool force = false );
 	
@@ -2876,6 +2890,7 @@ enum class events
 	on_network_packet,
 	on_reconnect,
 	on_global_event,
+	on_render_mouse_overs,
 	events_size
 };
 
@@ -3094,6 +3109,7 @@ public:
 	virtual bool can_be_glowed( game_object_script obj ) = 0;
 	virtual bool is_glowed( game_object_script obj ) = 0;
 	virtual bool apply_glow( game_object_script obj, uint32_t color, int thick = 4, int blur = 5 ) = 0;
+	virtual bool render_glow( game_object_script obj, std::uint32_t color, int thick = 4, int blur = 5 ) = 0;
 };
 
 #define sciprt_spell_wait 0.1f
@@ -3307,6 +3323,13 @@ struct event_handler<events::on_update>
 {
 	static void add_callback( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_update, ( void* ) callback ); }
 	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_update, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_render_mouse_overs>
+{
+	static void add_callback( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_render_mouse_overs, ( void* ) callback ); }
+	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_render_mouse_overs, ( void* ) callback ); }
 };
 
 template < >
