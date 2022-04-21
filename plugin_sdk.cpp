@@ -217,7 +217,7 @@ float game_object::get_exp_percent( )
 }
 
 float game_object::get_real_health( bool physical_shield, bool magical_shield )
-{
+{	
 	if ( this->is_ai_base( ) )
 	{
 		auto result = get_health( );
@@ -231,44 +231,73 @@ float game_object::get_real_health( bool physical_shield, bool magical_shield )
 
 		if ( this->is_ai_hero( ) )
 		{
-			if ( physical_shield && this->get_health_percent( ) > 30 )
+			if ( this->get_health_percent( ) > 30 )
 			{
-				auto maw = this->has_item( static_cast< uint32_t >( ItemId::Maw_of_Malmortius ) );
+				bool has_hexdrinker = false, has_maw = false;
 
-				if ( maw != spellslot::invalid )
+				for ( spellslot slot = spellslot::item_1; slot <= spellslot::item_6; slot = static_cast< spellslot >( static_cast< int >( slot ) + 1 ) )
 				{
-					if ( get_spell_state( maw ) == spell_state::Ready )
-						result += 300 + this->get_bonus_spell_block( );
-				}
-				else
-				{
-					auto hex = this->has_item( static_cast< uint32_t >( ItemId::Hexdrinker ) );
+					auto item = get_item( slot );
 
-					if ( hex != spellslot::invalid && get_spell_state( hex ) == spell_state::Ready )
-						result += 100 + 10 * this->get_level( );
+					if ( item )
+					{
+						ItemId item_id = static_cast< ItemId >( item->get_item_id( ) );
+
+						if ( item_id == ItemId::Maw_of_Malmortius )
+						{
+							has_hexdrinker = false;
+							has_maw = true;
+						}
+
+						if ( item_id == ItemId::Hexdrinker )
+							has_hexdrinker = !has_maw;
+
+						if ( get_spell_state( slot ) != spell_state::Ready )
+							continue;
+
+						if ( item_id == ItemId::Steraks_Gage )
+						{
+							auto bonus_health = get_max_health( ) - get_base_hp( ) + get_stat_for_level( per_level_stat_type::health, get_level( ) );
+							result += 0.75f * bonus_health;
+						}
+
+						if ( item_id == ItemId::Immortal_Shieldbow )
+							result += 275 + ( get_level( ) >= 10 ? ( ( get_level( ) - 9 ) * 47.22f ) : 0 );
+
+						if ( item_id == ItemId::Maw_of_Malmortius && magical_shield )
+							result += 150 + ( this->is_melee( ) ? 50 : 0 ) + this->get_additional_attack_damage( ) * ( this->is_melee( ) ? 2.25f : 1.6875f );
+					}
 				}
+
+				if ( magical_shield && has_hexdrinker)
+					result += ( this->is_melee( ) ? ( 100.f + 10.f * this->get_level( ) ) : ( 75.f + 7.5f * this->get_level( ) ) );
 			}
 
 			switch ( this->get_champion( ) )
 			{
 				case champion_id::Kled:
+				{	
 					result += this->get_hp_bar_stacks( );
 					break;
+				}
 				case  champion_id::Blitzcrank:
+				{	
 					if ( this->has_buff( { buff_hash( "BlitzcrankManaBarrierCD" ),buff_hash( "ManaBarrier" ) } ) == false )
-					{
 						result += this->get_max_mana( ) * 0.3f;
-					}
+
 					break;
+				}
 				case champion_id::Yasuo:
+				{
 					if ( this->get_mana( ) == 100 )
 					{
-						int passive[] = { 100, 105, 110, 115, 120, 130, 140, 150, 165, 180, 200, 225, 255, 330, 380, 440, 510 };
+						int passive[] = { 115, 120, 125, 130, 135, 145, 155, 165, 180, 195, 210, 240, 270, 305, 345, 395, 455, 525 };
 						int lvl = std::max( 17, this->get_level( ) - 1 );
 						auto temp = passive[ lvl ];
 						result += temp;
 					}
 					break;
+				}
 				default:
 					break;
 			}
