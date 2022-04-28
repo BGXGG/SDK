@@ -312,14 +312,14 @@ float game_object::get_distance( game_object_script to )
 	auto vFrom = this->get_position( );
 	auto vTo = to->get_position( );
 
-	if ( this->is_ai_base( ) )
+	if ( auto path_controller = this->get_path_controller( ) )
 	{
-		vFrom = this->get_path_controller( )->get_position_on_path( );
+		vFrom = path_controller->get_position_on_path( );
 	}
 
-	if ( to->is_ai_base( ) )
+	if ( auto path_controller = to->get_path_controller( ) )
 	{
-		vTo = to->get_path_controller( )->get_position_on_path( );
+		vTo = path_controller->get_position_on_path( );
 	}
 
 	return vFrom.distance( vTo );
@@ -329,9 +329,9 @@ float game_object::get_distance( const vector& to )
 {
 	auto vFrom = this->get_position( );
 
-	if ( this->is_ai_base( ) )
+	if ( auto path_controller = this->get_path_controller( ) )
 	{
-		vFrom = this->get_path_controller( )->get_position_on_path( );
+		vFrom = path_controller->get_position_on_path( );
 	}
 
 	return vFrom.distance( to );
