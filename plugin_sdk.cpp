@@ -282,7 +282,7 @@ float game_object::get_real_health( bool physical_shield, bool magical_shield )
 				}
 				case  champion_id::Blitzcrank:
 				{	
-					if ( this->has_buff( { buff_hash( "BlitzcrankManaBarrierCD" ),buff_hash( "ManaBarrier" ) } ) == false )
+					if ( this->has_buff( { buff_hash( "manabarriercooldown" ), buff_hash( "manabarrier" ) } ) == false )
 						result += this->get_max_mana( ) * 0.3f;
 
 					break;
