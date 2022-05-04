@@ -1995,6 +1995,9 @@ public:
 	virtual float get_base_hp( ) = 0;
 	virtual float get_base_mana( ) = 0;
 	virtual float get_stat_for_level( per_level_stat_type stat, std::int32_t level ) = 0;
+	
+	virtual void set_name( const std::string& name ) = 0;
+	virtual void print_chat( std::uint32_t flags, const char* format, ... ) = 0;
 
 	bool is_valid( bool force = false );
 	
