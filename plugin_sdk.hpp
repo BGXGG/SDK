@@ -1116,6 +1116,8 @@ public:
 	virtual float get_total_cooldown( ) = 0;
 
 	virtual int8_t get_icon_index( ) = 0;
+	
+	virtual uint32_t* get_icon_texture_by_index( int8_t index ) = 0;
 };
 
 class game_object;
@@ -1998,6 +2000,8 @@ public:
 	
 	virtual void set_name( const std::string& name ) = 0;
 	virtual void print_chat( std::uint32_t flags, const char* format, ... ) = 0;
+	
+	virtual game_object_script get_particle_attachment_object( ) = 0;
 
 	bool is_valid( bool force = false );
 	
