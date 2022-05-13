@@ -66,6 +66,16 @@ const static bool is_internal = false;
 #define PLUGIN_API	extern "C" __declspec(dllexport)
 #define PLUGIN_SDK_VERSION 1
 
+enum class plugin_type : std::int32_t
+{
+	utility,
+	champion,
+	misc,
+	core
+};
+
+#define PLUGIN_TYPE(x) PLUGIN_API const plugin_type type_plugin = x;
+
 /**
  * Sets supported champions by your plugin
  * 
