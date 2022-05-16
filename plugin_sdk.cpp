@@ -592,6 +592,9 @@ bool game_object::is_in_auto_attack_range_native( game_object* to, float additio
 	if ( this->get_champion( ) == champion_id::Caitlyn && to->has_buff( buff_hash( "caitlynyordletrapinternal" ) ) )
 		attack_range = 1300.f;
 
+	if ( this->get_champion( ) == champion_id::Aphelios && to->has_buff( buff_hash( "aphelioscalibrumbonusrangedebuff" ) ) )
+		attack_range = 1800.f;
+	
 	if ( this->get_champion( ) == champion_id::Samira
 		 && !to->has_buff( buff_hash( "samirapcooldown" ) ) 
 		 && to->has_buff_type( { buff_type::Stun, buff_type::Snare, buff_type::Knockup, buff_type::Charm, buff_type::Flee, buff_type::Taunt, buff_type::Asleep, buff_type::Suppression } ) )
