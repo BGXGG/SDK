@@ -3147,7 +3147,8 @@ public:
 
 	bool collision{};
 	bool is_charged_spell = false;
-
+	bool is_spell_lock_enable = false;
+	
 	spellslot slot = spellslot::invalid;
 
 	vector from{};
@@ -3226,7 +3227,10 @@ public:
 
 	virtual bool is_in_range( game_object_script target, float range = -1 );
 	virtual bool is_in_range( vector const& point, float range = -1 );
-
+	
+	void set_spell_lock( bool value );
+	bool is_spell_locked( );
+	
 	int8_t icon_index( );
 	game_object_script get_target( float extra_range = 0 );
 	prediction_output get_prediction( game_object_script target, vector origin, vector range_check_from );
