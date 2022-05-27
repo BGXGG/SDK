@@ -2339,6 +2339,7 @@ public:
 	virtual void set_selected_target( game_object_script target ) = 0;
 	virtual float get_priority( game_object_script target ) = 0;
 	virtual void set_priority( game_object_script target, int priority ) = 0;
+	virtual std::uint32_t get_active_target_selector_name_hash( ) = 0;
 
 	game_object_script get_target_min_hitchance( script_spell* spell, hit_chance min_hitchance );
 	game_object_script get_target_min_hitchance( script_spell* spell, hit_chance min_hitchance, damage_type damage_type );
@@ -2432,6 +2433,7 @@ public:
 	virtual uintptr_t get_active_prediction_selector( ) = 0;
 	virtual void remove_prediction_callback( uintptr_t id ) = 0;
 	virtual void remove_prediction_callback( std::string _name ) = 0;
+	virtual std::uint32_t get_active_prediction_name_hash( ) = 0;
 
 	prediction_output get_prediction( game_object_script unit, float delay );
 	prediction_output get_prediction( game_object_script unit, float delay, float radius );
@@ -2950,6 +2952,22 @@ public:
 	virtual uintptr_t get_active_health_prediction( ) = 0;
 	virtual void remove_health_prediction_callback( uintptr_t id ) = 0;
 	virtual void remove_health_prediction_callback( std::string _name ) = 0;
+	virtual std::uint32_t get_active_health_prediction_name_hash( ) = 0;
+};
+
+namespace orbwalker_state_flags
+{
+	enum
+	{
+		combo = 0x01,
+		lane_clear = 0x02,
+		harass = 0x04,
+		last_hit = 0x08,
+		flee = 0x10,
+		fast_lane_clear = 0x20,
+		freeze_last_hit = 0x40,
+		freeze_lane_clear = 0x80
+	};
 };
 
 class orbwalker_manager
@@ -3006,11 +3024,14 @@ public:
 		std::function<void( bool enable )> _set_attack,
 		std::function<void( bool enable )> _set_movement,
 		std::function<void( game_object_script target )> _set_orbwalking_target,
-		std::function<void( vector const& pos )> _set_orbwalking_point ) = 0;
+		std::function<void( vector const& pos )> _set_orbwalking_point,
+		std::function<std::uint32_t( )> _get_orb_state ) = 0;
 
 	virtual uintptr_t get_active_orbwalker( ) = 0;
 	virtual void remove_orbwalker_callback( uintptr_t id ) = 0;
 	virtual void remove_orbwalker_callback( std::string _name ) = 0;
+	virtual std::uint32_t get_active_orbwalker_name_hash( ) = 0;
+	virtual std::uint32_t get_orb_state( ) = 0;
 };
 
 struct damage_input
@@ -3056,6 +3077,7 @@ public:
 	virtual uintptr_t get_active_damagelib_selector( ) = 0;
 	virtual void remove_damagelib_callback( uintptr_t id ) = 0;
 	virtual void remove_damagelib_callback( std::string _name ) = 0;
+	virtual std::uint32_t get_active_damagelib_name_hash( ) = 0;
 };
 
 class global_event_params
