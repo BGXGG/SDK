@@ -2703,6 +2703,10 @@ buff_instance_script script_spell::get_charge_buff( )
 			{
 				return myhero->get_buff( buff_hash( "PoppyR" ) );
 			}
+			case champion_id::Vi:
+			{
+				return myhero->get_buff( buff_hash( "ViQ" ) );
+			}
 			default:
 				return nullptr;
 		}
