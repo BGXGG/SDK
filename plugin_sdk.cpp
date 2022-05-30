@@ -2043,7 +2043,7 @@ float script_spell::charged_percentage( )
 
     if ( buff != nullptr && buff->is_valid( ) && buff->is_alive( ) )
     {
-        return ( fmaxf( 0.f, fminf( 1.f, ( gametime->get_time( ) - buff->get_start( ) + 0.25f - ( buff->get_hash_name( ) == buff_hash( "PykeQ" ) ? 0.4f : 0.f ) - (buff->get_hash_name() == buff_hash("SionQ") ? 0.25f : 0.f)) / this->charge_duration ) ) );
+        return ( fmaxf( 0.f, fminf( 1.f, ( gametime->get_time( ) - buff->get_start( ) + 0.25f - ( buff->get_hash_name( ) == buff_hash( "PykeQ" ) ? 0.4f : 0.f ) - ( buff->get_hash_name( ) == buff_hash( "PoppyR" ) ? 0.5f : 0.f ) - (buff->get_hash_name() == buff_hash("SionQ") ? 0.25f : 0.f)) / this->charge_duration ) ) );
     }
 
     return fmaxf( 0.f, fminf( 1.f, this->is_charging( ) ? ( gametime->get_time( ) - this->charging_started_time ) / this->charge_duration  : 0.f ) );
