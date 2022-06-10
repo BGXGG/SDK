@@ -903,6 +903,7 @@ enum class champion_id
 	Vex = 711,
 	Zeri = 221,
 	Renata = 888,
+	Belveth = 200,
 	Unknown = 5000,
 	TFTChampion,
 	SG_Skarner,
