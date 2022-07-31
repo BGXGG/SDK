@@ -145,7 +145,7 @@ game_object_script target_selector_manager::get_target( script_spell* spell, dam
 		/*if ( spell->type == skillshot_type::skillshot_circle )
 			range += spell->radius;*/
 
-		return target_selector->get_target( range, damage_type, is_missile, true );
+		return target_selector->get_target( range, damage_type, true, is_missile);
 	}
 	return nullptr;
 }
@@ -270,7 +270,7 @@ float game_object::get_real_health( bool physical_shield, bool magical_shield )
 
 						if ( item_id == ItemId::Steraks_Gage )
 						{
-							auto bonus_health = get_max_health( ) - get_base_hp( ) + get_stat_for_level( per_level_stat_type::health, get_level( ) );
+							auto bonus_health = get_max_health( ) - (get_base_hp( ) + get_stat_for_level( per_level_stat_type::health, get_level( ) ));
 							result += 0.75f * bonus_health;
 						}
 
