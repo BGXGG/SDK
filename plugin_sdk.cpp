@@ -145,7 +145,7 @@ game_object_script target_selector_manager::get_target( script_spell* spell, dam
 		/*if ( spell->type == skillshot_type::skillshot_circle )
 			range += spell->radius;*/
 
-		return target_selector->get_target( range, damage_type, is_missile, true );
+		return target_selector->get_target( range, damage_type, false, is_missile );
 	}
 	return nullptr;
 }
@@ -270,7 +270,7 @@ float game_object::get_real_health( bool physical_shield, bool magical_shield )
 
 						if ( item_id == ItemId::Steraks_Gage )
 						{
-							auto bonus_health = get_max_health( ) - get_base_hp( ) + get_stat_for_level( per_level_stat_type::health, get_level( ) );
+							auto bonus_health = get_max_health( ) - ( get_base_hp( ) + get_stat_for_level( per_level_stat_type::health, get_level( ) ) );
 							result += 0.75f * bonus_health;
 						}
 
@@ -1785,6 +1785,19 @@ namespace antigapcloser
 						break;
 					case champion_id::Zeri:
 						add_dash( "ZeriE", 2000.f, 600.f ).set_wait_for_new_path( true ).set_add_ms_ratio( 1.f );
+						break;
+					case champion_id::Belveth:
+					{
+						auto belveth_speed = 750 + 50 * hero->get_spell( spellslot::q )->level( ) + hero->get_move_speed( );
+
+						if ( hero->has_buff( buff_hash( "BelvethRSteroid" ) ) )
+							belveth_speed += belveth_speed / 10.f;
+
+						add_dash( "BelvethQ", 400.f, belveth_speed ).set_wait_for_new_path( true );
+						break; 
+					}
+					case champion_id::Nilah:
+						add_dash( "NilahE", 450.f, 2200.f ).set_is_targeted( true );
 						break;
 				}
 			}
