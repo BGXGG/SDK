@@ -1448,6 +1448,16 @@ namespace antigapcloser
 				new_dash.start_position = start;
 				new_dash.end_position = end;
 				new_dash.speed = it->speed + sender->get_move_speed( ) * it->add_ms_ratio;
+				
+				if ( sender->get_champion( ) == champion_id::Belveth )
+				{
+					auto belveth_speed = 750 + 50 * sender->get_spell( spellslot::q )->level( ) + sender->get_move_speed( );
+
+					if ( sender->has_buff( buff_hash( "BelvethRSteroid" ) ) )
+						belveth_speed += belveth_speed / 10.f;
+
+					new_dash.speed = belveth_speed;
+				}
 
 				if ( it->always_fixed_delay > 0 )
 					new_dash.speed = new_dash.start_position.distance( new_dash.end_position ) / it->always_fixed_delay;
@@ -1787,15 +1797,8 @@ namespace antigapcloser
 						add_dash( "ZeriE", 2000.f, 600.f ).set_wait_for_new_path( true ).set_add_ms_ratio( 1.f );
 						break;
 					case champion_id::Belveth:
-					{
-						auto belveth_speed = 750 + 50 * hero->get_spell( spellslot::q )->level( ) + hero->get_move_speed( );
-
-						if ( hero->has_buff( buff_hash( "BelvethRSteroid" ) ) )
-							belveth_speed += belveth_speed / 10.f;
-
-						add_dash( "BelvethQ", 400.f, belveth_speed ).set_wait_for_new_path( true );
+						add_dash( "BelvethQ", 400.f, 800.f + hero->get_move_speed( ) ).set_wait_for_new_path( true );
 						break; 
-					}
 					case champion_id::Nilah:
 						add_dash( "NilahE", 450.f, 2200.f ).set_is_targeted( true );
 						break;
