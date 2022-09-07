@@ -56,9 +56,9 @@ float next_spell_cast_t = 0.f;
 
 void on_cast_spell( spellslot spell_slot, game_object_script target, vector& pos, vector& pos2, bool is_charge, bool* process )
 {
-	if ( !target && spell_slot >= spellslot::q && spell_slot <= spellslot::r && myhero->get_spell_state( spell_slot ) == spell_state::Ready )
+	if ( spell_slot >= spellslot::q && spell_slot <= spellslot::r && myhero->get_spell_state( spell_slot ) == spell_state::Ready )
 	{
-		if ( gametime->get_time( ) < next_spell_cast_t && enabled_spellslots[ spell_slot ] ) *process = false;
+		if ( !target && gametime->get_time( ) < next_spell_cast_t && enabled_spellslots[ spell_slot ] ) *process = false;
 		else next_spell_cast_t = gametime->get_time( ) + ping->get_ping( ) / 2000.f + 0.033f;
 	}
 }
@@ -67,7 +67,7 @@ script_spell* plugin_sdk_core::register_spell( spellslot slot, float range )
 {
 	if ( slot == spellslot::invalid ) return nullptr;
 	if ( !is_hooked ) event_handler<events::on_cast_spell>::add_callback( on_cast_spell );
-	
+
 	script_spells.push_back( std::make_unique<script_spell>( slot, range ) );
 
 	return script_spells.back( ).get( );
@@ -230,7 +230,7 @@ float game_object::get_exp_percent( )
 }
 
 float game_object::get_real_health( bool physical_shield, bool magical_shield )
-{	
+{
 	if ( this->is_ai_base( ) )
 	{
 		auto result = get_health( );
@@ -282,19 +282,19 @@ float game_object::get_real_health( bool physical_shield, bool magical_shield )
 					}
 				}
 
-				if ( magical_shield && has_hexdrinker)
+				if ( magical_shield && has_hexdrinker )
 					result += ( this->is_melee( ) ? ( 100.f + 10.f * this->get_level( ) ) : ( 75.f + 7.5f * this->get_level( ) ) );
 			}
 
 			switch ( this->get_champion( ) )
 			{
 				case champion_id::Kled:
-				{	
+				{
 					result += this->get_hp_bar_stacks( );
 					break;
 				}
 				case  champion_id::Blitzcrank:
-				{	
+				{
 					if ( this->has_buff( { buff_hash( "manabarriercooldown" ), buff_hash( "manabarrier" ) } ) == false )
 						result += this->get_max_mana( ) * 0.3f;
 
@@ -447,7 +447,7 @@ bool game_object::has_buff_type( buff_type type )
 	return false;
 }
 
-bool game_object::has_buff_type( const std::vector<buff_type> & type )
+bool game_object::has_buff_type( const std::vector<buff_type>& type )
 {
 	auto buff = this->get_buff_by_type( type );
 
@@ -581,7 +581,7 @@ bool game_object::is_in_auto_attack_range_native( game_object* to, float additio
 		attack_range += 775.f;
 	else if ( this->is_ai_hero( ) && this->get_champion( ) == champion_id::Zeri )
 		attack_range += 500.f;
-	else 
+	else
 		attack_range += this->get_attack_range( );
 
 	vector to_position = to->get_position( );
@@ -596,10 +596,10 @@ bool game_object::is_in_auto_attack_range_native( game_object* to, float additio
 	if ( this->is_ai_hero( ) && to->is_ai_hero( ) )
 	{
 		if ( this->get_path_controller( )->is_moving( ) )
-			attack_range -= 5;
+			attack_range -= 20;
 
 		if ( to->get_path_controller( )->is_moving( ) && to->get_pathing_direction( ).angle_between( from_position - to_position ) > 89 )
-			attack_range -= 8;
+			attack_range -= 12;
 	}
 
 	if ( this->get_champion( ) == champion_id::Caitlyn && to->has_buff( buff_hash( "caitlynyordletrapinternal" ) ) )
@@ -607,9 +607,9 @@ bool game_object::is_in_auto_attack_range_native( game_object* to, float additio
 
 	if ( this->get_champion( ) == champion_id::Aphelios && to->has_buff( buff_hash( "aphelioscalibrumbonusrangedebuff" ) ) )
 		attack_range = 1800.f;
-	
+
 	if ( this->get_champion( ) == champion_id::Samira
-		 && !to->has_buff( buff_hash( "samirapcooldown" ) ) 
+		 && !to->has_buff( buff_hash( "samirapcooldown" ) )
 		 && to->has_buff_type( { buff_type::Stun, buff_type::Snare, buff_type::Knockup, buff_type::Charm, buff_type::Flee, buff_type::Taunt, buff_type::Asleep, buff_type::Suppression } ) )
 	{
 		attack_range += 300.f;
@@ -689,7 +689,7 @@ int32_t game_object::is_casting_interruptible_spell( )
 	//High priority
 	if ( champion == champion_id::Rammus && active->get_spellslot( ) == spellslot::q )
 		return 2;
-	if ( champion == champion_id::Warwick && active->get_spellslot( ) == (spellslot)48 )
+	if ( champion == champion_id::Warwick && active->get_spellslot( ) == ( spellslot ) 48 )
 		return 2;
 	if ( champion == champion_id::Velkoz && active->get_spellslot( ) == spellslot::r )
 		return 2;
@@ -1295,35 +1295,35 @@ int prediction_output::aoe_targets_hit_count( )
 
 namespace antigapcloser
 {
-	#define ADD_DASH_DATA_VAR(TYPE, NAME) TYPE NAME = {}; TrackedDashData& set_##NAME( const TYPE& NAME ) { this->NAME = NAME; return *this; }
+#define ADD_DASH_DATA_VAR(TYPE, NAME) TYPE NAME = {}; TrackedDashData& set_##NAME( const TYPE& NAME ) { this->NAME = NAME; return *this; }
 
 	struct TrackedDashData
 	{
 		ADD_DASH_DATA_VAR( std::string, name )
-		ADD_DASH_DATA_VAR( std::string, spell_name )
+			ADD_DASH_DATA_VAR( std::string, spell_name )
 
-		ADD_DASH_DATA_VAR( std::uint32_t, required_buffhash )
-		ADD_DASH_DATA_VAR( std::uint32_t, spell_name_hash )
+			ADD_DASH_DATA_VAR( std::uint32_t, required_buffhash )
+			ADD_DASH_DATA_VAR( std::uint32_t, spell_name_hash )
 
-		ADD_DASH_DATA_VAR( bool, wait_for_new_path )
-		ADD_DASH_DATA_VAR( bool, is_dangerous )
-		ADD_DASH_DATA_VAR( bool, is_fixed_range )
-		ADD_DASH_DATA_VAR( bool, is_targeted )
-		ADD_DASH_DATA_VAR( bool, is_inverted )
-		ADD_DASH_DATA_VAR( bool, find_target_by_buffhash )
-		ADD_DASH_DATA_VAR( bool, wait_for_targetable )
-		ADD_DASH_DATA_VAR( bool, is_cc )
-		ADD_DASH_DATA_VAR( bool, is_unstoppable )
+			ADD_DASH_DATA_VAR( bool, wait_for_new_path )
+			ADD_DASH_DATA_VAR( bool, is_dangerous )
+			ADD_DASH_DATA_VAR( bool, is_fixed_range )
+			ADD_DASH_DATA_VAR( bool, is_targeted )
+			ADD_DASH_DATA_VAR( bool, is_inverted )
+			ADD_DASH_DATA_VAR( bool, find_target_by_buffhash )
+			ADD_DASH_DATA_VAR( bool, wait_for_targetable )
+			ADD_DASH_DATA_VAR( bool, is_cc )
+			ADD_DASH_DATA_VAR( bool, is_unstoppable )
 
-		ADD_DASH_DATA_VAR( float, delay )
-		ADD_DASH_DATA_VAR( float, speed )
-		ADD_DASH_DATA_VAR( float, range )
-		ADD_DASH_DATA_VAR( float, min_range )
-		ADD_DASH_DATA_VAR( float, extra_range )
-		ADD_DASH_DATA_VAR( float, add_ms_ratio )
-		ADD_DASH_DATA_VAR( float, always_fixed_delay )
+			ADD_DASH_DATA_VAR( float, delay )
+			ADD_DASH_DATA_VAR( float, speed )
+			ADD_DASH_DATA_VAR( float, range )
+			ADD_DASH_DATA_VAR( float, min_range )
+			ADD_DASH_DATA_VAR( float, extra_range )
+			ADD_DASH_DATA_VAR( float, add_ms_ratio )
+			ADD_DASH_DATA_VAR( float, always_fixed_delay )
 
-		TrackedDashData( )
+			TrackedDashData( )
 		{
 			this->speed = FLT_MAX;
 			this->spell_name_hash = spell_hash_real( spell_name.c_str( ) );
@@ -1360,10 +1360,10 @@ namespace antigapcloser
 			this->is_finished_detecting = false;
 		}
 	};
-	
+
 	std::vector< TrackedDash > detected_dashes;
 	std::vector< TrackedDashData > dashes_data;
-	
+
 	std::vector<void*> p_handlers;
 
 	TrackedDashData& add_dash( const std::string& spell_name, float range, float speed )
@@ -1388,7 +1388,7 @@ namespace antigapcloser
 			if ( it != dashes_data.end( ) )
 			{
 				game_object_script target = spell->get_last_target_id( ) != 0 && it->is_targeted
-					? entitylist->get_object( spell->get_last_target_id( ) ) 
+					? entitylist->get_object( spell->get_last_target_id( ) )
 					: nullptr;
 
 				if ( it->find_target_by_buffhash )
@@ -1448,7 +1448,7 @@ namespace antigapcloser
 				new_dash.start_position = start;
 				new_dash.end_position = end;
 				new_dash.speed = it->speed + sender->get_move_speed( ) * it->add_ms_ratio;
-				
+
 				if ( sender->get_champion( ) == champion_id::Belveth )
 				{
 					auto belveth_speed = 750 + 50 * sender->get_spell( spellslot::q )->level( ) + sender->get_move_speed( );
@@ -1461,7 +1461,7 @@ namespace antigapcloser
 
 				if ( it->always_fixed_delay > 0 )
 					new_dash.speed = new_dash.start_position.distance( new_dash.end_position ) / it->always_fixed_delay;
-		
+
 				new_dash.start_time = gametime->get_time( );
 				new_dash.end_time = new_dash.start_time + it->delay + start.distance( end ) / new_dash.speed;
 
@@ -1494,7 +1494,7 @@ namespace antigapcloser
 			}
 		}
 	}
-	
+
 	void OnUpdate( )
 	{
 		detected_dashes.erase( std::remove_if( detected_dashes.begin( ), detected_dashes.end( ), []( const TrackedDash& dash )
@@ -1525,7 +1525,7 @@ namespace antigapcloser
 				dash.is_finished_detecting = true;
 			}
 		}
-		
+
 		for ( const TrackedDash& dash : detected_dashes )
 		{
 			if ( !dash.is_finished_detecting || !dash.sender->is_valid_target( ) ) continue;
@@ -1541,13 +1541,13 @@ namespace antigapcloser
 			args.end_position = dash.end_position;
 			args.is_unstoppable = dash.dash_data->is_unstoppable;
 			args.is_cc = dash.dash_data->is_cc;
-						
+
 			if ( !dash.dash_data->name.empty( ) )
 				args.type = gapcloser_type::item;
-			
+
 			if ( dash.target != nullptr && dash.target->is_me( ) )
 				args.type = gapcloser_type::targeted;
-			
+
 			for ( auto const& callback : p_handlers )
 			{
 				if ( callback != nullptr )
@@ -1585,7 +1585,7 @@ namespace antigapcloser
 						break;
 					case champion_id::Akali:
 						add_dash( "AkaliE", 350.f, 1400.f ).set_is_fixed_range( true ).set_is_inverted( true ).set_delay( 0.2f );
-						add_dash( "AkaliEb", FLT_MAX, 1700.f ).set_is_targeted( true ).set_required_buffhash( buff_hash("AkaliEMis") ).set_find_target_by_buffhash( true );
+						add_dash( "AkaliEb", FLT_MAX, 1700.f ).set_is_targeted( true ).set_required_buffhash( buff_hash( "AkaliEMis" ) ).set_find_target_by_buffhash( true );
 						add_dash( "AkaliR", 750.f, 1500.f ).set_is_fixed_range( true );
 						add_dash( "AkaliRb", 800.f, 3000.f ).set_is_fixed_range( true );
 						break;
@@ -1804,7 +1804,7 @@ namespace antigapcloser
 						break;
 				}
 			}
-			
+
 			event_handler< events::on_new_path >::add_callback( OnNewPath );
 			event_handler< events::on_process_spell_cast >::add_callback( OnProcessSpellCast );
 			event_handler< events::on_update >::add_callback( OnUpdate );
@@ -2055,14 +2055,14 @@ float script_spell::mana_cost( )
 
 float script_spell::charged_percentage( )
 {
-    auto buff = this->get_charge_buff( );
+	auto buff = this->get_charge_buff( );
 
-    if ( buff != nullptr && buff->is_valid( ) && buff->is_alive( ) )
-    {
-        return ( fmaxf( 0.f, fminf( 1.f, ( gametime->get_time( ) - buff->get_start( ) + 0.25f - ( buff->get_hash_name( ) == buff_hash( "PykeQ" ) ? 0.4f : 0.f ) - ( buff->get_hash_name( ) == buff_hash( "PoppyR" ) ? 0.5f : 0.f ) - (buff->get_hash_name() == buff_hash("SionQ") ? 0.25f : 0.f)) / this->charge_duration ) ) );
-    }
+	if ( buff != nullptr && buff->is_valid( ) && buff->is_alive( ) )
+	{
+		return ( fmaxf( 0.f, fminf( 1.f, ( gametime->get_time( ) - buff->get_start( ) + 0.25f - ( buff->get_hash_name( ) == buff_hash( "PykeQ" ) ? 0.4f : 0.f ) - ( buff->get_hash_name( ) == buff_hash( "SionQ" ) ? 0.25f : 0.f ) ) / this->charge_duration ) ) );
+	}
 
-    return fmaxf( 0.f, fminf( 1.f, this->is_charging( ) ? ( gametime->get_time( ) - this->charging_started_time ) / this->charge_duration  : 0.f ) );
+	return fmaxf( 0.f, fminf( 1.f, this->is_charging( ) ? ( gametime->get_time( ) - this->charging_started_time ) / this->charge_duration : 0.f ) );
 }
 
 bool script_spell::cast( )
@@ -2093,20 +2093,18 @@ float script_spell::cooldown_time( )
 
 void script_spell::set_spell_lock( bool value )
 {
-	if ( slot >= spellslot::q && slot <= spellslot::r ) 
-		enabled_spellslots[ slot ] = value;
-	
+	if ( slot >= spellslot::q && slot <= spellslot::r ) enabled_spellslots[ slot ] = value;
+
 	is_spell_lock_enable = value;
 }
 
 bool script_spell::is_spell_locked( )
 {
-	if ( !is_spell_lock_enable )
-		return false;
+	if ( !is_spell_lock_enable ) return false;
 
 	auto active_spell = myhero->get_active_spell( );
 	return active_spell != nullptr && !active_spell->is_auto_attack( ) && active_spell->is_winding_up( );
-}
+} 
 
 vector script_spell::get_cast_on_best_farm_position( int minMinions, bool is_jugnle_mobs )
 {
@@ -2130,6 +2128,10 @@ vector script_spell::get_cast_on_best_farm_position( int minMinions, bool is_jug
 
 		minionPositions.push_back( prediction->get_prediction( &input ).get_unit_position( ) );
 	}
+
+	if ( minionPositions.empty( ) )
+		return vector( 0, 0, 0 );
+
 	if ( minionPositions.size( ) == 1 )
 	{
 		if ( 1 >= minMinions )
@@ -2145,42 +2147,66 @@ vector script_spell::get_cast_on_best_farm_position( int minMinions, bool is_jug
 		auto bestPos = vector( );
 		auto count = 0;
 		auto startPos = myhero->get_position( );
-		auto width = this->radius + 30 + 30;
+		auto width = this->radius;
 		auto range = this->range( );
-
-		if ( minionPositions.size( ) > 0 )
+		auto get_combinations = []( const std::vector<vector>& values ) ->std::vector<std::vector<vector>>
 		{
-			if ( minionPositions.size( ) > 1 )
-			{
-				for ( auto&& pos : minionPositions )
-				{
-					auto points = geometry::geometry::circle_points( pos, width / 2, 6 );
+			std::vector<std::vector<vector>> result;
 
-					for ( auto&& point : points )
+			for ( int counter = 0; counter < ( 1 << values.size( ) ); ++counter )
+			{
+				std::vector<vector> subgroup;
+
+				for ( size_t i = 0; i < values.size( ); ++i )
+					if ( ( counter & ( 1 << i ) ) == 0 )
+						subgroup.push_back( values[ i ] );
+
+				result.push_back( subgroup );
+			}
+
+			return result;
+		};
+
+		if ( minionPositions.size( ) < 10 )
+		{
+			auto subGroups = get_combinations( minionPositions );
+
+			for ( auto&& subGroup : subGroups )
+			{
+				if ( subGroup.size( ) > 0 )
+				{
+					auto circle = mec::get_mec( subGroup );
+
+					if ( circle.radius <= width && circle.center.distance_squared( startPos ) <= range * range )
 					{
-						if ( point.distance( startPos ) <= range )
-						{
-							auto countPosition = 0;
-							for ( auto&& pos2 : minionPositions )
-							{
-								if ( point.distance( pos2 ) <= width )
-								{
-									countPosition++;
-								}
-							}
-							if ( countPosition > count )
-							{
-								bestPos = point;
-								count = countPosition;
-							}
-						}
+						if ( subGroup.size( ) >= minMinions )
+							return circle.center;
+
+						return vector( 0, 0, 0 );
 					}
 				}
 			}
-			else
+		}
+		else
+		{
+			for ( auto&& pos : minionPositions )
 			{
-				bestPos = minionPositions.front( );
-				count = 1;
+				if ( pos.distance_squared( startPos ) <= range * range )
+				{
+					auto c = 0;
+
+					for ( auto&& pos2 : minionPositions )
+					{
+						if ( pos.distance_squared( pos2 ) <= width * width )
+							++c;
+					}
+
+					if ( c >= minMinions )
+					{
+						bestPos = pos;
+						count = c;
+					}
+				}
 			}
 		}
 
@@ -2198,7 +2224,7 @@ vector script_spell::get_cast_on_best_farm_position( int minMinions, bool is_jug
 		auto range = this->range( );
 		auto result = vector( );
 		auto minionCount = 0;
-		auto width = this->radius + 30 + 30;
+		auto width = this->radius * this->radius;
 		std::vector<vector> posiblePositions;
 
 		posiblePositions.insert( std::end( posiblePositions ), std::begin( minionPositions ), std::end( minionPositions ) );
@@ -2217,16 +2243,14 @@ vector script_spell::get_cast_on_best_farm_position( int minMinions, bool is_jug
 
 		for ( auto&& pos : posiblePositions )
 		{
-			if ( pos.distance( startPos ) <= range * range )
+			if ( pos.distance_squared( startPos ) <= range * range )
 			{
-				auto temp = ( pos - startPos ).normalized( );
-				temp = temp * range;
-				auto endPos = startPos + temp;
+				auto endPos = startPos + ( pos - startPos ).normalized( ) * range;
 				auto count = 0;
 
 				for ( auto&& pos2 : minionPositions )
 				{
-					if ( pos2.distance( startPos, endPos, true, true ) <= width * width )
+					if ( pos2.distance( startPos, endPos, true, true ) <= width )
 						++count;
 				}
 
@@ -2323,7 +2347,7 @@ bool script_spell::cast_on_best_farm_position( int minMinions, bool is_jugnle_mo
 
 	if ( is_spell_locked( ) )
 		return false;
-	
+
 	auto best_pos = get_cast_on_best_farm_position( minMinions, is_jugnle_mobs );
 
 	if ( best_pos.is_valid( ) )
@@ -2352,10 +2376,10 @@ bool script_spell::cast( game_object_script unit, hit_chance minimum, bool aoe, 
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
-	
+
 	if ( is_spell_locked( ) )
 		return false;
-	
+
 	vector cast_position;
 
 	prediction_input x;
@@ -2405,10 +2429,10 @@ bool script_spell::cast( vector position )
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
-	
+
 	if ( is_spell_locked( ) )
 		return false;
-	
+
 	if ( !this->is_charged_spell )
 	{
 		myhero->cast_spell( this->slot, position );
@@ -2452,6 +2476,9 @@ bool script_spell::cast( vector startPosition, vector endPosition )
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
 
+	if ( is_spell_locked( ) )
+		return false;
+
 	myhero->cast_spell( this->slot, startPosition, endPosition );
 
 	last_cast_spell = gametime->get_time( );
@@ -2492,7 +2519,7 @@ bool script_spell::start_charging( )
 
 		last_cast_spell = gametime->get_time( );
 
-		charging_started_time = gametime->get_time( ) - (ping->get_ping( ) / 1000.f);
+		charging_started_time = gametime->get_time( ) - ( ping->get_ping( ) / 1000.f );
 		return true;
 	}
 	return this->is_charging( );
@@ -2502,7 +2529,7 @@ bool script_spell::start_charging( const vector& position )
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
-	
+
 	if ( is_spell_locked( ) )
 		return false;
 
@@ -2511,7 +2538,7 @@ bool script_spell::start_charging( const vector& position )
 		myhero->cast_spell( this->slot, position, true, true );
 
 		last_cast_spell = gametime->get_time( );
-		charging_started_time = gametime->get_time( ) - ( ping->get_ping( ) / 1000.f);
+		charging_started_time = gametime->get_time( ) - ( ping->get_ping( ) / 1000.f );
 		return true;
 	}
 	return this->is_charging( );
@@ -2524,14 +2551,13 @@ bool script_spell::fast_cast( vector position )
 
 	if ( is_charging( ) )
 		myhero->update_charged_spell( this->slot, position, true );
-	else 
+	else
 	{
 		if ( is_spell_locked( ) )
 			return false;
 
 		myhero->cast_spell( this->slot, position );
 	}
-
 	last_cast_spell = gametime->get_time( );
 
 	return true;
@@ -2581,7 +2607,7 @@ void script_spell::set_skillshot( float delay, float radius, float speed, std::v
 	this->speed = speed;
 	this->collision_flags = flags;
 	this->collision = flags.size( ) != 0;
-	
+
 	if ( this->slot >= spellslot::q && this->slot <= spellslot::r )
 	{
 		is_spell_lock_enable = true;
@@ -2615,6 +2641,21 @@ prediction_output script_spell::get_prediction( game_object_script target, vecto
 	return prediction->get_prediction( &x );
 }
 
+std::vector<game_object_script> script_spell::get_collision( const vector& from, const std::vector<vector>& to_pos, float speedOverride, float delayOverride, float radiusOverride )
+{
+	prediction_input x;
+	x._from = from;
+	x.delay = delayOverride > 0 ? delayOverride : this->delay;
+	x.speed = speedOverride > 0 ? speedOverride : this->speed;
+	x.radius = radiusOverride > 0 ? radiusOverride : this->radius;
+	x.collision_objects = this->collision_flags;
+	x.range = this->range( );
+	x.type = this->type;
+	x.spell_slot = this->slot;
+
+	return prediction->get_collision( to_pos, &x );
+}
+
 prediction_output script_spell::get_prediction( game_object_script target, bool aoe, float overrideRange, std::vector<collisionable_objects> collisionable )
 {
 	prediction_input x;
@@ -2636,21 +2677,6 @@ prediction_output script_spell::get_prediction( game_object_script target, bool 
 	x.use_bounding_radius = this->type != skillshot_type::skillshot_circle;
 
 	return prediction->get_prediction( &x );
-}
-
-std::vector<game_object_script> script_spell::get_collision( const vector& from, const std::vector<vector>& to_pos, float speedOverride, float delayOverride, float radiusOverride )
-{
-	prediction_input x;
-	x._from = from;
-	x.delay = delayOverride > 0 ? delayOverride : this->delay;
-	x.speed = speedOverride > 0 ? speedOverride : this->speed;
-	x.radius = radiusOverride > 0 ? radiusOverride : this->radius;
-	x.collision_objects = this->collision_flags;
-	x.range = this->range( );
-	x.type = this->type;
-	x.spell_slot = this->slot;
-
-	return prediction->get_collision( to_pos, &x );
 }
 
 prediction_output script_spell::get_prediction_no_collision( game_object_script target, bool aoe, float overrideRange )
@@ -2710,18 +2736,6 @@ buff_instance_script script_spell::get_charge_buff( )
 			case champion_id::Viego:
 			{
 				return myhero->get_buff( buff_hash( "ViegoW" ) );
-			}
-			case champion_id::Zac:
-			{
-				return myhero->get_buff( buff_hash( "ZacE" ) );
-			}
-			case champion_id::Poppy:
-			{
-				return myhero->get_buff( buff_hash( "PoppyR" ) );
-			}
-			case champion_id::Vi:
-			{
-				return myhero->get_buff( buff_hash( "ViQ" ) );
 			}
 			default:
 				return nullptr;
@@ -2803,3 +2817,285 @@ prediction_output prediction_manager::get_prediction( game_object_script unit, f
 
 	return prediction->get_prediction( &input );
 }
+namespace mec
+{
+	mec_circle get_mec( const std::vector<vector>& points )
+	{
+		auto center = vector( );
+		float radius;
+
+		auto ConvexHull = make_convex_hull( points );
+		find_minimal_bounding_circle( ConvexHull, center, radius );
+		return mec_circle( center, radius );
+	}
+
+	bool circle_encloses_points(
+		const vector& center,
+		float radius2,
+		const std::vector<vector>& points,
+		int skip1,
+		int skip2,
+		int skip3 )
+	{
+		for ( auto i = 0u; i < points.size( ); i++ )
+		{
+			if ( ( i != skip1 ) && ( i != skip2 ) && ( i != skip3 ) )
+			{
+				vector point = points[ i ];
+				float dx = center.x - point.x;
+				float dy = center.y - point.y;
+				float test_radius2 = dx * dx + dy * dy;
+				if ( test_radius2 > radius2 ) return false;
+			}
+		}
+		return true;
+	}
+
+	void find_circle( const vector& a, const vector& b, const vector& c, vector& center, float& radius2 )
+	{
+		auto x1 = ( b.x + a.x ) / 2;
+		auto y1 = ( b.y + a.y ) / 2;
+		auto dy1 = b.x - a.x;
+		auto dx1 = -( b.y - a.y );
+
+		auto x2 = ( c.x + b.x ) / 2;
+		auto y2 = ( c.y + b.y ) / 2;
+		auto dy2 = c.x - b.x;
+		auto dx2 = -( c.y - b.y );
+
+		auto cx = ( y1 * dx1 * dx2 + x2 * dx1 * dy2 - x1 * dy1 * dx2 - y2 * dx1 * dx2 ) / ( dx1 * dy2 - dy1 * dx2 );
+		auto cy = ( cx - x1 ) * dy1 / dx1 + y1;
+		center = vector( cx, cy );
+
+		auto dx = cx - a.x;
+		auto dy = cy - a.y;
+		radius2 = dx * dx + dy * dy;
+	}
+
+	void find_minimal_bounding_circle( const std::vector<vector>& points, vector& center, float& radius )
+	{
+		auto hull = make_convex_hull( points );
+
+		auto best_center = points[ 0 ];
+		auto best_radius2 = std::numeric_limits<float>::max( );
+
+		for ( auto i = 0; i < ( std::int32_t ) hull.size( ) - 1; i++ )
+		{
+			for ( auto j = i + 1; j < ( std::int32_t ) hull.size( ); j++ )
+			{
+				auto test_center = vector( ( hull[ i ].x + hull[ j ].x ) / 2.f, ( hull[ i ].y + hull[ j ].y ) / 2.f );
+				auto dx = test_center.x - hull[ i ].x;
+				auto dy = test_center.y - hull[ i ].y;
+				auto test_radius2 = dx * dx + dy * dy;
+
+				if ( test_radius2 < best_radius2 )
+				{
+					if ( circle_encloses_points( test_center, test_radius2, points, i, j, -1 ) )
+					{
+						best_center = test_center;
+						best_radius2 = test_radius2;
+					}
+				}
+			}
+		}
+
+		for ( auto i = 0; i < ( std::int32_t ) hull.size( ) - 2; i++ )
+		{
+			for ( auto j = i + 1; j < ( std::int32_t ) hull.size( ) - 1; j++ )
+			{
+				for ( auto k = j + 1; k < ( std::int32_t ) hull.size( ); k++ )
+				{
+					vector test_center;
+					float test_radius2;
+					find_circle( hull[ i ], hull[ j ], hull[ k ], test_center, test_radius2 );
+
+					if ( test_radius2 < best_radius2 )
+					{
+						if ( circle_encloses_points( test_center, test_radius2, points, i, j, k ) )
+						{
+							best_center = test_center;
+							best_radius2 = test_radius2;
+						}
+					}
+				}
+			}
+		}
+
+		center = best_center;
+		if ( best_radius2 == std::numeric_limits<float>::max( ) )
+		{
+			radius = 0;
+		}
+		else
+		{
+			radius = ( float ) sqrt( best_radius2 );
+		}
+	}
+
+	void get_min_max_corners(
+		const std::vector<vector>& points,
+		vector& ul,
+		vector& ur,
+		vector& ll,
+		vector& lr )
+	{
+		ul = points[ 0 ];
+		ur = ul;
+		ll = ul;
+		lr = ul;
+
+		for ( auto& pt : points )
+		{
+			if ( -pt.x - pt.y > -ul.x - ul.y )
+			{
+				ul = pt;
+			}
+			if ( pt.x - pt.y > ur.x - ur.y )
+			{
+				ur = pt;
+			}
+			if ( -pt.x + pt.y > -ll.x + ll.y )
+			{
+				ll = pt;
+			}
+			if ( pt.x + pt.y > lr.x + lr.y )
+			{
+				lr = pt;
+			}
+		}
+	}
+
+	rectangle_f get_min_max_box( const std::vector<vector>& points )
+	{
+		vector ul = vector( 0, 0, 0 ), ur = ul, ll = ul, lr = ul;
+		get_min_max_corners( points, ul, ur, ll, lr );
+
+		auto xmin = ul.x;
+		auto ymin = ul.y;
+
+		auto xmax = ur.x;
+		if ( ymin < ur.y )
+		{
+			ymin = ur.y;
+		}
+
+		if ( xmax > lr.x )
+		{
+			xmax = lr.x;
+		}
+		auto ymax = lr.y;
+
+		if ( xmin < ll.x )
+		{
+			xmin = ll.x;
+		}
+		if ( ymax > ll.y )
+		{
+			ymax = ll.y;
+		}
+
+		auto result = rectangle_f( xmin, ymin, xmax - xmin, ymax - ymin );
+		return result;
+	}
+
+	std::vector<vector> hull_cull( const std::vector<vector>& points )
+	{
+		std::vector<vector> results;
+		auto culling_box = get_min_max_box( points );
+
+		for ( auto& pt : points )
+		{
+			if ( pt.x <= culling_box.x || pt.x >= culling_box.x + culling_box.width || pt.y <= culling_box.y
+				|| pt.y >= culling_box.y + culling_box.height )
+				results.push_back( pt );
+		}
+
+
+		return results;
+	}
+
+	float angle_value( float x1, float y1, float x2, float y2 )
+	{
+		float t;
+
+		auto dx = x2 - x1;
+		auto ax = abs( dx );
+		auto dy = y2 - y1;
+		auto ay = abs( dy );
+		if ( ax + ay == 0 )
+		{
+			t = 360.f / 9.f;
+		}
+		else
+		{
+			t = dy / ( ax + ay );
+		}
+		if ( dx < 0 )
+		{
+			t = 2 - t;
+		}
+		else if ( dy < 0 )
+		{
+			t = 4 + t;
+		}
+		return t * 90;
+	}
+
+	std::vector<vector> make_convex_hull( std::vector<vector> points )
+	{
+		points = hull_cull( points );
+
+		vector best_pt = points[ 0 ];
+
+		for ( auto& pt : points )
+		{
+			if ( ( pt.y < best_pt.y ) || ( ( pt.y == best_pt.y ) && ( pt.x < best_pt.x ) ) )
+				best_pt = pt;
+		}
+
+		std::vector<vector> hull;
+
+		hull.push_back( best_pt );
+
+		points.erase( std::remove( points.begin( ), points.end( ), best_pt ), points.end( ) );
+
+		float sweep_angle = 0;
+		for ( ;;)
+		{
+			if ( points.size( ) == 0 )
+			{
+				break;
+			}
+
+			auto X = hull[ hull.size( ) - 1 ].x;
+			auto Y = hull[ hull.size( ) - 1 ].y;
+			best_pt = points[ 0 ];
+			float best_angle = 3600;
+
+			for ( auto& pt : points )
+			{
+				auto test_angle = angle_value( X, Y, pt.x, pt.y );
+				if ( ( test_angle >= sweep_angle ) && ( best_angle > test_angle ) )
+				{
+					best_angle = test_angle;
+					best_pt = pt;
+				}
+			}
+
+			auto first_angle = angle_value( X, Y, hull[ 0 ].x, hull[ 0 ].y );
+			if ( ( first_angle >= sweep_angle ) && ( best_angle >= first_angle ) )
+			{
+				break;
+			}
+
+			hull.push_back( best_pt );
+
+			points.erase( std::remove( points.begin( ), points.end( ), best_pt ), points.end( ) );
+
+			sweep_angle = best_angle;
+		}
+
+		return hull;
+	}
+
+};

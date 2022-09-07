@@ -1128,7 +1128,7 @@ public:
 	virtual float get_total_cooldown( ) = 0;
 
 	virtual int8_t get_icon_index( ) = 0;
-	
+
 	virtual uint32_t* get_icon_texture_by_index( int8_t index ) = 0;
 };
 
@@ -2001,18 +2001,18 @@ public:
 	virtual bool send_emote( emote_type emote ) = 0;
 	virtual bool display_champ_mastery_badge( ) = 0;
 	virtual void request_to_display_emote( summoner_emote_slot slot ) = 0;
-	
+
 	virtual void send_latency_ping( std::uint16_t latency ) = 0;
 	virtual void send_spell_ping(game_object_script hero, std::int32_t spell ) = 0;
 	virtual void send_hero_ping( game_object_script hero ) = 0;
-	
+
 	virtual float get_base_hp( ) = 0;
 	virtual float get_base_mana( ) = 0;
 	virtual float get_stat_for_level( per_level_stat_type stat, std::int32_t level ) = 0;
-	
+
 	virtual void set_name( const std::string& name ) = 0;
 	virtual void print_chat( std::uint32_t flags, const char* format, ... ) = 0;
-	
+
 	virtual game_object_script get_particle_attachment_object( ) = 0;
 
 	bool is_valid( bool force = false );
@@ -2551,7 +2551,7 @@ public:
 	//   You don't need to call is_visible and is_valid_target
 	//
 	virtual const std::vector<std::shared_ptr<game_object>>& get_attackable_objects( ) = 0;
-	
+
 	// AttackableUnit
 	//
 	// Returns attackable unit under your mouse
@@ -3172,7 +3172,7 @@ public:
 	bool collision{};
 	bool is_charged_spell = false;
 	bool is_spell_lock_enable = false;
-	
+
 	spellslot slot = spellslot::invalid;
 
 	vector from{};
@@ -3251,14 +3251,14 @@ public:
 
 	virtual bool is_in_range( game_object_script target, float range = -1 );
 	virtual bool is_in_range( vector const& point, float range = -1 );
-	
+
 	void set_spell_lock( bool value );
 	bool is_spell_locked( );
-	
 	int8_t icon_index( );
 	game_object_script get_target( float extra_range = 0 );
 	prediction_output get_prediction( game_object_script target, vector origin, vector range_check_from );
 	std::vector<game_object_script> get_collision( const vector& from, const std::vector<vector>& to_pos, float speedOverride = -1, float delayOverride = -1, float radiusOverride = -1 );
+
 private:
 	float last_cast_spell = 0.f;
 
@@ -3401,17 +3401,17 @@ struct event_handler<events::on_draw>
 };
 
 template < >
-struct event_handler<events::on_network_packet>
-{
-	static void add_callback( void( *callback )( game_object_script sender, std::uint32_t network_id, pkttype_e type, void* args ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_network_packet, ( void* ) callback ); }
-	static void remove_handler( void( *callback )( game_object_script sender, std::uint32_t network_id, pkttype_e type, void* args ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_network_packet, ( void* ) callback ); }
-};
-
-template < >
 struct event_handler<events::on_global_event>
 {
 	static void add_callback( void( *callback )(std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_global_event, ( void* ) callback ); }
 	static void remove_handler( void( *callback )(std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_global_event, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_network_packet>
+{
+	static void add_callback( void( *callback )( game_object_script sender, std::uint32_t network_id, pkttype_e type, void* args ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_network_packet, ( void* ) callback ); }
+	static void remove_handler( void( *callback )( game_object_script sender, std::uint32_t network_id, pkttype_e type, void* args ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_network_packet, ( void* ) callback ); }
 };
 
 template < >
@@ -4188,3 +4188,58 @@ namespace math
 	bool IsZero( float A );
 	bool NearEqual( float A, float B, int maxUlpsDiff = 4 );
 }
+
+
+class mec_circle
+{
+public:
+	vector center;
+	float radius;
+
+	mec_circle( const vector& center, float radius )
+	{
+		this->center = center;
+		this->radius = radius;
+	}
+};
+
+class rectangle_f
+{
+public:
+	float x;
+	float y;
+	float width;
+	float height;
+	rectangle_f( float x, float y, float width, float height )
+	{
+		this->x = x;
+		this->y = y;
+		this->width = width;
+		this->height = height;
+	}
+};
+
+namespace mec
+{
+	void get_min_max_corners(
+		const std::vector<vector>& points,
+		vector& ul,
+		vector& ur,
+		vector& ll,
+		vector& lr );
+	float angle_value( float x1, float y1, float x2, float y2 );
+	std::vector<vector> hull_cull( const std::vector<vector>& points );
+	rectangle_f get_min_max_box( const std::vector<vector>& points );
+	bool circle_encloses_points(
+		const vector& center,
+		float radius2,
+		const std::vector<vector>& points,
+		int skip1,
+		int skip2,
+		int skip3 );
+	void find_circle( const vector& a, const vector& b, const vector& c, vector& center, float& radius2 );
+	void find_minimal_bounding_circle( const std::vector<vector>& points, vector& center, float& radius );
+	mec_circle get_mec( const std::vector<vector>& points );
+	std::vector<vector> make_convex_hull( std::vector<vector> points );
+};
+

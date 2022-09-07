@@ -904,17 +904,21 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	void RangeTest(const IntPoint & Pt, bool& useFullRange)
+	void RangeTest(const IntPoint & Pt, bool& useFullRange, bool* exception)
 	{
 		if (useFullRange)
 		{
-			if (Pt.X > hiRange || Pt.Y > hiRange || -Pt.X > hiRange || -Pt.Y > hiRange)
-				throw clipperException("Coordinate outside allowed range");
+			if ( Pt.X > hiRange || Pt.Y > hiRange || -Pt.X > hiRange || -Pt.Y > hiRange )
+			{
+				if ( exception )
+					*exception = true;
+				return;
+			}
 		}
 		else if (Pt.X > loRange || Pt.Y > loRange || -Pt.X > loRange || -Pt.Y > loRange)
 		{
 			useFullRange = true;
-			RangeTest(Pt, useFullRange);
+			RangeTest(Pt, useFullRange, exception );
 		}
 	}
 	//------------------------------------------------------------------------------
@@ -1054,14 +1058,22 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	bool ClipperBase::AddPath(const Path & pg, PolyType PolyTyp, bool Closed)
+	bool ClipperBase::AddPath(const Path & pg, PolyType PolyTyp, bool Closed, bool* exception )
 	{
 #ifdef use_lines
-		if (!Closed && PolyTyp == ptClip)
-			throw clipperException("AddPath: Open paths must be subject.");
+		if ( !Closed && PolyTyp == ptClip )
+		{
+			if ( exception )
+				*exception = true;
+			return false;
+		}
 #else
-		if (!Closed)
-			throw clipperException("AddPath: Open paths have been disabled.");
+		if ( !Closed )
+		{
+			if ( exception )
+				*exception = true;
+			return false;
+		}
 #endif
 
 		int highI = (int)pg.size() - 1;
@@ -1074,24 +1086,34 @@ namespace ClipperLib
 
 		bool IsFlat = true;
 		//1. Basic (first) edge initialization ...
-		try
+		bool exception_range = false;
+		
+		edges[1].Curr = pg[1];
+		RangeTest(pg[0], m_UseFullRange, &exception_range );
+		if ( exception_range )
+			goto EXCEPTION_OCCURED;
+		RangeTest(pg[highI], m_UseFullRange, &exception_range );
+		if ( exception_range )
+			goto EXCEPTION_OCCURED;
+		InitEdge(&edges[0], &edges[1], &edges[highI], pg[0]);
+		InitEdge(&edges[highI], &edges[0], &edges[highI - 1], pg[highI]);
+		for (int i = highI - 1; i >= 1; --i)
 		{
-			edges[1].Curr = pg[1];
-			RangeTest(pg[0], m_UseFullRange);
-			RangeTest(pg[highI], m_UseFullRange);
-			InitEdge(&edges[0], &edges[1], &edges[highI], pg[0]);
-			InitEdge(&edges[highI], &edges[0], &edges[highI - 1], pg[highI]);
-			for (int i = highI - 1; i >= 1; --i)
-			{
-				RangeTest(pg[i], m_UseFullRange);
-				InitEdge(&edges[i], &edges[i + 1], &edges[i - 1], pg[i]);
-			}
+			RangeTest(pg[i], m_UseFullRange, &exception_range );
+			if ( exception_range )
+				goto EXCEPTION_OCCURED;
+			InitEdge(&edges[i], &edges[i + 1], &edges[i - 1], pg[i]);
 		}
-		catch (...)
-		{
-			delete[] edges;
-			throw; //range test fails
-		}
+		
+		goto SKIP_EXCEPTION;
+
+	EXCEPTION_OCCURED:
+		delete[] edges;
+		if ( exception )
+			*exception = true;
+		return false;
+	SKIP_EXCEPTION:
+
 		TEdge* eStart = &edges[0];
 
 		//2. Remove duplicate vertices, and (when closed) collinear edges ...
@@ -1233,11 +1255,22 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	bool ClipperBase::AddPaths(const Paths & ppg, PolyType PolyTyp, bool Closed)
+	bool ClipperBase::AddPaths(const Paths & ppg, PolyType PolyTyp, bool Closed, bool* exception)
 	{
+		bool exception_path = false;
 		bool result = false;
-		for (Paths::size_type i = 0; i < ppg.size(); ++i)
-			if (AddPath(ppg[i], PolyTyp, Closed)) result = true;
+		for ( Paths::size_type i = 0; i < ppg.size( ); ++i )
+		{
+			auto add_path_result = AddPath( ppg[ i ], PolyTyp, Closed, &exception_path );
+			if ( exception_path )
+			{
+				if ( exception )
+					*exception = true;
+				return false;
+			}
+			if ( add_path_result ) result = true;
+		}
+			
 		return result;
 	}
 	//------------------------------------------------------------------------------
@@ -1451,10 +1484,14 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	void ClipperBase::UpdateEdgeIntoAEL(TEdge * &e)
+	void ClipperBase::UpdateEdgeIntoAEL(TEdge * &e, bool* exception)
 	{
-		if (!e->NextInLML)
-			throw clipperException("UpdateEdgeIntoAEL: invalid call");
+		if ( !e->NextInLML )
+		{
+			if( exception )
+				*exception = true;
+			return;
+		}
 
 		e->NextInLML->OutIdx = e->OutIdx;
 		TEdge* AelPrev = e->PrevInAEL;
@@ -1505,9 +1542,9 @@ namespace ClipperLib
 	//------------------------------------------------------------------------------
 #endif
 
-	bool Clipper::Execute(ClipType clipType, Paths & solution, PolyFillType fillType)
+	bool Clipper::Execute(ClipType clipType, Paths & solution, PolyFillType fillType, bool* exception )
 	{
-		return Execute(clipType, solution, fillType, fillType);
+		return Execute(clipType, solution, fillType, fillType, exception );
 	}
 	//------------------------------------------------------------------------------
 
@@ -1518,11 +1555,15 @@ namespace ClipperLib
 	//------------------------------------------------------------------------------
 
 	bool Clipper::Execute(ClipType clipType, Paths & solution,
-		PolyFillType subjFillType, PolyFillType clipFillType)
+		PolyFillType subjFillType, PolyFillType clipFillType, bool* exception)
 	{
 		if (m_ExecuteLocked) return false;
-		if (m_HasOpenPaths)
-			throw clipperException("Error: PolyTree struct is needed for open path clipping.");
+		if ( m_HasOpenPaths )
+		{
+			if ( exception )
+				*exception = true;
+			return false;
+		}
 		m_ExecuteLocked = true;
 		solution.resize(0);
 		m_SubjFillType = subjFillType;
@@ -1572,33 +1613,43 @@ namespace ClipperLib
 	bool Clipper::ExecuteInternal()
 	{
 		bool succeeded = true;
-		try {
-			Reset();
-			m_Maxima = MaximaList();
-			m_SortedEdges = 0;
+		bool exception = false;
+		
+		Reset();
+		m_Maxima = MaximaList();
+		m_SortedEdges = 0;
 
-			succeeded = true;
-			cInt botY, topY;
-			if (!PopScanbeam(botY)) return false;
-			InsertLocalMinimaIntoAEL(botY);
-			while (PopScanbeam(topY) || LocalMinimaPending())
-			{
-				ProcessHorizontals();
-				ClearGhostJoins();
-				if (!ProcessIntersections(topY))
-				{
-					succeeded = false;
-					break;
-				}
-				ProcessEdgesAtTopOfScanbeam(topY);
-				botY = topY;
-				InsertLocalMinimaIntoAEL(botY);
-			}
-		}
-		catch (...)
+		succeeded = true;
+		cInt botY, topY;
+		if (!PopScanbeam(botY)) return false;
+		InsertLocalMinimaIntoAEL(botY);
+		while (PopScanbeam(topY) || LocalMinimaPending())
 		{
-			succeeded = false;
-		}
+			ProcessHorizontals(&exception );
+			if ( exception )
+				goto EXCEPTION_OCCURED;
+			ClearGhostJoins();
+
+			auto process_internal_res = ProcessIntersections( topY, &exception );
+			if ( exception )
+				goto EXCEPTION_OCCURED;		
+
+			if (!process_internal_res )
+			{
+				succeeded = false;
+				break;
+			}
+			ProcessEdgesAtTopOfScanbeam(topY, &exception );
+			if ( exception )
+				goto EXCEPTION_OCCURED;
+			botY = topY;
+			InsertLocalMinimaIntoAEL(botY);
+		}	
+
+		goto SKIP_EXCEPTION;
+	EXCEPTION_OCCURED:
+		succeeded = false;
+	SKIP_EXCEPTION:
 
 		if (succeeded)
 		{
@@ -2533,11 +2584,20 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	void Clipper::ProcessHorizontals()
+	void Clipper::ProcessHorizontals( bool* exception)
 	{
+		bool process_exception = false;
 		TEdge* horzEdge;
-		while (PopEdgeFromSEL(horzEdge))
-			ProcessHorizontal(horzEdge);
+		while ( PopEdgeFromSEL( horzEdge ) )
+		{
+			ProcessHorizontal( horzEdge, &process_exception );
+			if ( process_exception )
+			{
+				if ( exception )
+					*exception = true;
+				return;
+			}
+		}
 	}
 	//------------------------------------------------------------------------------
 
@@ -2658,7 +2718,7 @@ namespace ClipperLib
 	* the AEL. These 'promoted' edges may in turn intersect [%] with other HEs.    *
 	*******************************************************************************/
 
-	void Clipper::ProcessHorizontal(TEdge * horzEdge)
+	void Clipper::ProcessHorizontal(TEdge * horzEdge, bool* exception)
 	{
 		Direction dir;
 		cInt horzLeft, horzRight;
@@ -2786,8 +2846,15 @@ namespace ClipperLib
 
 			  //Break out of loop if HorzEdge.NextInLML is not also horizontal ...
 			if (!horzEdge->NextInLML || !IsHorizontal(*horzEdge->NextInLML)) break;
-
-			UpdateEdgeIntoAEL(horzEdge);
+			
+			bool exception_edge_into = false;
+			UpdateEdgeIntoAEL(horzEdge,&exception_edge_into );
+			if ( exception_edge_into )
+			{
+				if ( exception )
+					*exception = true;
+				return;
+			}
 			if (horzEdge->OutIdx >= 0) AddOutPt(horzEdge, horzEdge->Bot);
 			GetHorzDirection(*horzEdge, dir, horzLeft, horzRight);
 
@@ -2813,10 +2880,17 @@ namespace ClipperLib
 
 		if (horzEdge->NextInLML)
 		{
+			bool exception_edge_into = false;
 			if (horzEdge->OutIdx >= 0)
 			{
 				op1 = AddOutPt(horzEdge, horzEdge->Top);
-				UpdateEdgeIntoAEL(horzEdge);
+				UpdateEdgeIntoAEL(horzEdge, &exception_edge_into);
+				if ( exception_edge_into )
+				{
+					if ( exception )
+						*exception = true;
+					return;
+				}
 				if (horzEdge->WindDelta == 0) return;
 				//nb: HorzEdge is no longer horizontal here
 				TEdge * ePrev = horzEdge->PrevInAEL;
@@ -2839,7 +2913,16 @@ namespace ClipperLib
 				}
 			}
 			else
-				UpdateEdgeIntoAEL(horzEdge);
+			{
+				UpdateEdgeIntoAEL( horzEdge, &exception_edge_into );
+				if ( exception_edge_into )
+				{
+					if ( exception )
+						*exception = true;
+					return;
+				}
+			}
+				
 		}
 		else
 		{
@@ -2849,22 +2932,16 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	bool Clipper::ProcessIntersections(const cInt topY)
+	bool Clipper::ProcessIntersections(const cInt topY, bool* exception)
 	{
 		if (!m_ActiveEdges) return true;
-		try {
-			BuildIntersectList(topY);
-			size_t IlSize = m_IntersectList.size();
-			if (IlSize == 0) return true;
-			if (IlSize == 1 || FixupIntersectionOrder()) ProcessIntersectList();
-			else return false;
-		}
-		catch (...)
-		{
-			m_SortedEdges = 0;
-			DisposeIntersectNodes();
-			throw clipperException("ProcessIntersections error");
-		}
+		
+		BuildIntersectList(topY);
+		size_t IlSize = m_IntersectList.size();
+		if (IlSize == 0) return true;
+		if (IlSize == 1 || FixupIntersectionOrder()) ProcessIntersectList();
+		else return false;
+
 		m_SortedEdges = 0;
 		return true;
 	}
@@ -2978,7 +3055,7 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	void Clipper::DoMaxima(TEdge * e)
+	void Clipper::DoMaxima(TEdge * e, bool* exception)
 	{
 		TEdge* eMaxPair = GetMaximaPairEx(e);
 		if (!eMaxPair)
@@ -3026,12 +3103,18 @@ namespace ClipperLib
 			DeleteFromAEL(eMaxPair);
 		}
 #endif
-		else throw clipperException("DoMaxima error");
+		else
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
 	}
 	//------------------------------------------------------------------------------
 
-	void Clipper::ProcessEdgesAtTopOfScanbeam(const cInt topY)
+	void Clipper::ProcessEdgesAtTopOfScanbeam( const cInt topY, bool* exception)
 	{
+		bool exception_test = false;
 		TEdge* e = m_ActiveEdges;
 		while (e)
 		{
@@ -3049,7 +3132,13 @@ namespace ClipperLib
 			{
 				if (m_StrictSimple) m_Maxima.push_back(e->Top.X);
 				TEdge* ePrev = e->PrevInAEL;
-				DoMaxima(e);
+				DoMaxima(e, &exception_test );
+				if ( exception_test )
+				{
+					if ( exception )
+						*exception = true;
+					return;
+				}
 				if (!ePrev) e = m_ActiveEdges;
 				else e = ePrev->NextInAEL;
 			}
@@ -3058,7 +3147,13 @@ namespace ClipperLib
 				//2. promote horizontal edges, otherwise update Curr.X and Curr.Y ...
 				if (IsIntermediate(e, topY) && IsHorizontal(*e->NextInLML))
 				{
-					UpdateEdgeIntoAEL(e);
+					UpdateEdgeIntoAEL(e,&exception_test );
+					if ( exception_test )
+					{
+						if ( exception )
+							*exception = true;
+						return;
+					}
 					if (e->OutIdx >= 0)
 						AddOutPt(e, e->Bot);
 					AddEdgeToSEL(e);
@@ -3096,7 +3191,13 @@ namespace ClipperLib
 
 		//3. Process horizontals at the Top of the scanbeam ...
 		m_Maxima.sort();
-		ProcessHorizontals();
+		ProcessHorizontals(&exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
 		m_Maxima.clear();
 
 		//4. Promote intermediate vertices ...
@@ -3108,8 +3209,13 @@ namespace ClipperLib
 				OutPt* op = 0;
 				if (e->OutIdx >= 0)
 					op = AddOutPt(e, e->Top);
-				UpdateEdgeIntoAEL(e);
-
+				UpdateEdgeIntoAEL(e,&exception_test );
+				if ( exception_test )
+				{
+					if ( exception )
+						*exception = true;
+					return;
+				}
 				//if output polygons share an edge, they'll need joining later ...
 				TEdge * ePrev = e->PrevInAEL;
 				TEdge * eNext = e->NextInAEL;
@@ -3913,18 +4019,32 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	void ClipperOffset::Execute(Paths & solution, double delta)
+	void ClipperOffset::Execute(Paths & solution, double delta, bool* exception)
 	{
+		bool exception_test = false;
+
 		solution.clear();
 		FixOrientations();
 		DoOffset(delta);
 
 		//now clean up 'corners' ...
 		Clipper clpr;
-		clpr.AddPaths(m_destPolys, ptSubject, true);
+		clpr.AddPaths(m_destPolys, ptSubject, true, &exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
 		if (delta > 0)
 		{
-			clpr.Execute(ctUnion, solution, pftPositive, pftPositive);
+			clpr.Execute(ctUnion, solution, pftPositive, pftPositive, &exception_test );
+			if ( exception_test )
+			{
+				if ( exception )
+					*exception = true;
+				return;
+			}
 		}
 		else
 		{
@@ -3935,23 +4055,43 @@ namespace ClipperLib
 			outer[2] = IntPoint(r.right + 10, r.top - 10);
 			outer[3] = IntPoint(r.left - 10, r.top - 10);
 
-			clpr.AddPath(outer, ptSubject, true);
+			clpr.AddPath(outer, ptSubject, true, &exception_test );
+			if ( exception_test )
+			{
+				if ( exception )
+					*exception = true;
+				return;
+			}
 			clpr.ReverseSolution(true);
-			clpr.Execute(ctUnion, solution, pftNegative, pftNegative);
+			clpr.Execute(ctUnion, solution, pftNegative, pftNegative, &exception_test );
+			if ( exception_test )
+			{
+				if ( exception )
+					*exception = true;
+				return;
+			}
 			if (solution.size() > 0) solution.erase(solution.begin());
 		}
 	}
 	//------------------------------------------------------------------------------
 
-	void ClipperOffset::Execute(PolyTree & solution, double delta)
+	void ClipperOffset::Execute(PolyTree & solution, double delta, bool* exception )
 	{
+		bool exception_test = false;
+
 		solution.Clear();
 		FixOrientations();
 		DoOffset(delta);
 
 		//now clean up 'corners' ...
 		Clipper clpr;
-		clpr.AddPaths(m_destPolys, ptSubject, true);
+		clpr.AddPaths(m_destPolys, ptSubject, true, &exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
 		if (delta > 0)
 		{
 			clpr.Execute(ctUnion, solution, pftPositive, pftPositive);
@@ -3965,7 +4105,13 @@ namespace ClipperLib
 			outer[2] = IntPoint(r.right + 10, r.top - 10);
 			outer[3] = IntPoint(r.left - 10, r.top - 10);
 
-			clpr.AddPath(outer, ptSubject, true);
+			clpr.AddPath(outer, ptSubject, true, &exception_test );
+			if ( exception_test )
+			{
+				if ( exception )
+					*exception = true;
+				return;
+			}
 			clpr.ReverseSolution(true);
 			clpr.Execute(ctUnion, solution, pftNegative, pftNegative);
 			//remove the outer PolyNode rectangle ...
@@ -4321,27 +4467,53 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	void SimplifyPolygon(const Path & in_poly, Paths & out_polys, PolyFillType fillType)
+	void SimplifyPolygon(const Path & in_poly, Paths & out_polys, PolyFillType fillType, bool* exception)
 	{
+		bool exception_test = false;
 		Clipper c;
 		c.StrictlySimple(true);
-		c.AddPath(in_poly, ptSubject, true);
-		c.Execute(ctUnion, out_polys, fillType, fillType);
+		c.AddPath(in_poly, ptSubject, true, &exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
+		c.Execute(ctUnion, out_polys, fillType, fillType, &exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
 	}
 	//------------------------------------------------------------------------------
 
-	void SimplifyPolygons(const Paths & in_polys, Paths & out_polys, PolyFillType fillType)
+	void SimplifyPolygons(const Paths & in_polys, Paths & out_polys, PolyFillType fillType, bool* exception )
 	{
+		bool exception_test = false;
 		Clipper c;
 		c.StrictlySimple(true);
-		c.AddPaths(in_polys, ptSubject, true);
-		c.Execute(ctUnion, out_polys, fillType, fillType);
+		c.AddPaths(in_polys, ptSubject, true,&exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
+		c.Execute(ctUnion, out_polys, fillType, fillType, &exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
 	}
 	//------------------------------------------------------------------------------
 
-	void SimplifyPolygons(Paths & polys, PolyFillType fillType)
+	void SimplifyPolygons(Paths & polys, PolyFillType fillType, bool* exception )
 	{
-		SimplifyPolygons(polys, polys, fillType);
+		SimplifyPolygons(polys, polys, fillType, exception );
 	}
 	//------------------------------------------------------------------------------
 
@@ -4539,12 +4711,25 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	void MinkowskiSum(const Path & pattern, const Path & path, Paths & solution, bool pathIsClosed)
+	void MinkowskiSum(const Path & pattern, const Path & path, Paths & solution, bool pathIsClosed, bool* exception)
 	{
+		bool exception_test = false;
 		Minkowski(pattern, path, solution, true, pathIsClosed);
 		Clipper c;
-		c.AddPaths(solution, ptSubject, true);
-		c.Execute(ctUnion, solution, pftNonZero, pftNonZero);
+		c.AddPaths(solution, ptSubject, true,&exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
+		c.Execute(ctUnion, solution, pftNonZero, pftNonZero, &exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
 	}
 	//------------------------------------------------------------------------------
 
@@ -4557,31 +4742,65 @@ namespace ClipperLib
 	}
 	//------------------------------------------------------------------------------
 
-	void MinkowskiSum(const Path & pattern, const Paths & paths, Paths & solution, bool pathIsClosed)
+	void MinkowskiSum(const Path & pattern, const Paths & paths, Paths & solution, bool pathIsClosed, bool* exception )
 	{
+		bool exception_test = false;
+
 		Clipper c;
 		for (size_t i = 0; i < paths.size(); ++i)
 		{
 			Paths tmp;
 			Minkowski(pattern, paths[i], tmp, true, pathIsClosed);
-			c.AddPaths(tmp, ptSubject, true);
+			c.AddPaths(tmp, ptSubject, true,&exception_test );
+			if ( exception_test )
+			{
+				if ( exception )
+					*exception = true;
+				return;
+			}
 			if (pathIsClosed)
 			{
 				Path tmp2;
 				TranslatePath(paths[i], tmp2, pattern[0]);
-				c.AddPath(tmp2, ptClip, true);
+				c.AddPath(tmp2, ptClip, true, &exception_test );
+				if ( exception_test )
+				{
+					if ( exception )
+						*exception = true;
+					return;
+				}
 			}
 		}
-		c.Execute(ctUnion, solution, pftNonZero, pftNonZero);
+		c.Execute(ctUnion, solution, pftNonZero, pftNonZero, &exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
 	}
 	//------------------------------------------------------------------------------
 
-	void MinkowskiDiff(const Path & poly1, const Path & poly2, Paths & solution)
+	void MinkowskiDiff(const Path & poly1, const Path & poly2, Paths & solution, bool* exception )
 	{
+		bool exception_test = false;
+
 		Minkowski(poly1, poly2, solution, false, true);
 		Clipper c;
-		c.AddPaths(solution, ptSubject, true);
-		c.Execute(ctUnion, solution, pftNonZero, pftNonZero);
+		c.AddPaths(solution, ptSubject, true, &exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
+		c.Execute(ctUnion, solution, pftNonZero, pftNonZero, &exception_test );
+		if ( exception_test )
+		{
+			if ( exception )
+				*exception = true;
+			return;
+		}
 	}
 	//------------------------------------------------------------------------------
 

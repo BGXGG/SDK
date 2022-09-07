@@ -176,18 +176,18 @@ namespace ClipperLib
 	double Area(const Path& poly);
 	int PointInPolygon(const IntPoint& pt, const Path& path);
 
-	void SimplifyPolygon(const Path& in_poly, Paths& out_polys, PolyFillType fillType = pftEvenOdd);
-	void SimplifyPolygons(const Paths& in_polys, Paths& out_polys, PolyFillType fillType = pftEvenOdd);
-	void SimplifyPolygons(Paths& polys, PolyFillType fillType = pftEvenOdd);
+	void SimplifyPolygon(const Path& in_poly, Paths& out_polys, PolyFillType fillType, bool* exception );
+	void SimplifyPolygons(const Paths& in_polys, Paths& out_polys, PolyFillType fillType, bool* exception );
+	void SimplifyPolygons(Paths& polys, PolyFillType fillType, bool* exception );
 
 	void CleanPolygon(const Path& in_poly, Path& out_poly, double distance = 1.415);
 	void CleanPolygon(Path& poly, double distance = 1.415);
 	void CleanPolygons(const Paths& in_polys, Paths& out_polys, double distance = 1.415);
 	void CleanPolygons(Paths& polys, double distance = 1.415);
 
-	void MinkowskiSum(const Path& pattern, const Path& path, Paths& solution, bool pathIsClosed);
-	void MinkowskiSum(const Path& pattern, const Paths& paths, Paths& solution, bool pathIsClosed);
-	void MinkowskiDiff(const Path& poly1, const Path& poly2, Paths& solution);
+	void MinkowskiSum(const Path& pattern, const Path& path, Paths& solution, bool pathIsClosed, bool* exception );
+	void MinkowskiSum(const Path& pattern, const Paths& paths, Paths& solution, bool pathIsClosed, bool* exception );
+	void MinkowskiDiff(const Path& poly1, const Path& poly2, Paths& solution, bool* exception );
 
 	void PolyTreeToPaths(const PolyTree& polytree, Paths& paths);
 	void ClosedPathsFromPolyTree(const PolyTree& polytree, Paths& paths);
@@ -224,8 +224,8 @@ namespace ClipperLib
 	public:
 		ClipperBase();
 		virtual ~ClipperBase();
-		virtual bool AddPath(const Path& pg, PolyType PolyTyp, bool Closed);
-		bool AddPaths(const Paths& ppg, PolyType PolyTyp, bool Closed);
+		virtual bool AddPath(const Path& pg, PolyType PolyTyp, bool Closed, bool* exception);
+		bool AddPaths(const Paths& ppg, PolyType PolyTyp, bool Closed, bool* exception );
 		virtual void Clear();
 		IntRect GetBounds();
 		bool PreserveCollinear() { return m_PreserveCollinear; };
@@ -244,7 +244,7 @@ namespace ClipperLib
 		void DisposeOutRec(PolyOutList::size_type index);
 		void SwapPositionsInAEL(TEdge* edge1, TEdge* edge2);
 		void DeleteFromAEL(TEdge* e);
-		void UpdateEdgeIntoAEL(TEdge*& e);
+		void UpdateEdgeIntoAEL(TEdge*& e, bool* exception);
 
 		typedef std::vector<LocalMinimum> MinimaList;
 		MinimaList::iterator m_CurrentLM;
@@ -268,11 +268,13 @@ namespace ClipperLib
 		Clipper(int initOptions = 0);
 		bool Execute(ClipType clipType,
 			Paths& solution,
-			PolyFillType fillType = pftEvenOdd);
+			PolyFillType fillType,
+			bool* exception);
 		bool Execute(ClipType clipType,
 			Paths& solution,
 			PolyFillType subjFillType,
-			PolyFillType clipFillType);
+			PolyFillType clipFillType,
+			bool* exception);
 		bool Execute(ClipType clipType,
 			PolyTree& polytree,
 			PolyFillType fillType = pftEvenOdd);
@@ -319,9 +321,9 @@ namespace ClipperLib
 		void SwapPositionsInSEL(TEdge* edge1, TEdge* edge2);
 		bool IsContributing(const TEdge& edge) const;
 		bool IsTopHorz(const cInt XPos);
-		void DoMaxima(TEdge* e);
-		void ProcessHorizontals();
-		void ProcessHorizontal(TEdge* horzEdge);
+		void DoMaxima(TEdge* e, bool* exception);
+		void ProcessHorizontals( bool* exception );
+		void ProcessHorizontal(TEdge* horzEdge, bool* exception );
 		void AddLocalMaxPoly(TEdge* e1, TEdge* e2, const IntPoint& pt);
 		OutPt* AddLocalMinPoly(TEdge* e1, TEdge* e2, const IntPoint& pt);
 		OutRec* GetOutRec(int idx);
@@ -329,10 +331,10 @@ namespace ClipperLib
 		void IntersectEdges(TEdge* e1, TEdge* e2, IntPoint& pt);
 		OutPt* AddOutPt(TEdge* e, const IntPoint& pt);
 		OutPt* GetLastOutPt(TEdge* e);
-		bool ProcessIntersections(const cInt topY);
+		bool ProcessIntersections(const cInt topY, bool* exception );
 		void BuildIntersectList(const cInt topY);
 		void ProcessIntersectList();
-		void ProcessEdgesAtTopOfScanbeam(const cInt topY);
+		void ProcessEdgesAtTopOfScanbeam(const cInt topY, bool* exception );
 		void BuildResult(Paths& polys);
 		void BuildResult2(PolyTree& polytree);
 		void SetHoleState(TEdge* e, OutRec* outrec);
@@ -366,8 +368,8 @@ namespace ClipperLib
 		~ClipperOffset();
 		void AddPath(const Path& path, JoinType joinType, EndType endType);
 		void AddPaths(const Paths& paths, JoinType joinType, EndType endType);
-		void Execute(Paths& solution, double delta);
-		void Execute(PolyTree& solution, double delta);
+		void Execute(Paths& solution, double delta, bool* exception );
+		void Execute(PolyTree& solution, double delta, bool* exception );
 		void Clear();
 		double MiterLimit;
 		double ArcTolerance;
@@ -389,16 +391,6 @@ namespace ClipperLib
 		void DoRound(int j, int k);
 	};
 	//------------------------------------------------------------------------------
-
-	class clipperException : public std::exception
-	{
-	public:
-		clipperException(const char* description) : m_descr(description) {}
-		virtual ~clipperException() throw() {}
-		virtual const char* what() const throw() { return m_descr.c_str(); }
-	private:
-		std::string m_descr;
-	};
 }
 
 #endif //clipper_hpp
