@@ -66,7 +66,7 @@ const static bool is_internal = false;
 #define PLUGIN_API	extern "C" __declspec(dllexport)
 #define PLUGIN_SDK_VERSION 1
 
-enum class plugin_type : std::int32_t
+enum class plugin_type: std::int32_t
 {
 	utility,
 	champion,
@@ -78,7 +78,7 @@ enum class plugin_type : std::int32_t
 
 /**
  * Sets supported champions by your plugin
- * 
+ *
  * You have to use that macro once in your main file
  *
  * Example: SUPPORTED_CHAMPIONS(champion_id::Annie, champion_id::Ashe);
@@ -86,22 +86,23 @@ enum class plugin_type : std::int32_t
 #define SUPPORTED_CHAMPIONS(...) PLUGIN_API \
 champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
 
-/**
- * Sets name of your plugin
- * Max length is 64 including null character
- * 
- * You have to use that macro once in your main file
- * 
- * Example: PLUGIN_NAME("Test Plugin");
+ /**
+  * Sets name of your plugin
+  * Max length is 64 including null character
+  *
+  * You have to use that macro once in your main file
+  *
+  * Example: PLUGIN_NAME("Test Plugin");
  */
 #define PLUGIN_NAME(x) PLUGIN_API const char plugin_name[64] = x;
+
 
  /**
   * Initialize global variables for your plugin
   * You have to call it otherwise your plugin will crash
   *
   * Call it instantly at beginning of on_sdk_load function with plugin_sdk_core as parameter
-  * 
+  *
   * Example: DECLARE_GLOBALS(plugin_sdk_good);
   */
 #define DECLARE_GLOBALS(PLUGIN_SDK) \
@@ -140,44 +141,44 @@ champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
     ((unsigned long)((((a)&0xff)<<24)|(((b)&0xff)<<16)|(((g)&0xff)<<8)|((r)&0xff)))
 
 
-/**
- * Creates color value from RGBA
- * Example: MAKE_COLOR(255,0,255,255);
- */
+  /**
+   * Creates color value from RGBA
+   * Example: MAKE_COLOR(255,0,255,255);
+   */
 #define MAKE_COLOR(r,g,b,a) D3DCOLOR_ARGB(a,r,g,b) 
 
-/**
- * Creates buff name hash for given buff name
- * 
- * Use that macro when checking for buff or getting a buff
- * We don't support getting buffs by their name, you have to pass hash
- * 
- * buff_hash is ignorecase hashing function
- * 
- * Example: buff_hash("ZeriR");
- */
+   /**
+	* Creates buff name hash for given buff name
+	*
+	* Use that macro when checking for buff or getting a buff
+	* We don't support getting buffs by their name, you have to pass hash
+	*
+	* buff_hash is ignorecase hashing function
+	*
+	* Example: buff_hash("ZeriR");
+	*/
 #define buff_hash(str) (std::integral_constant<std::uint32_t, buff_hash_real(str)>::value)
 
-/**
- * Creates spell name hash for given spell name
- * 
- * We recommend to use that when comparing spells name it's a lot faster than string compare
- * 
- * spell_data->get_name_hash() == spell_hash("ZeriR")
- * 
- * spell_hash is ignorecase hashing function
- * 
- * Example: spell_hash("ZeriR");
- */
+	/**
+	 * Creates spell name hash for given spell name
+	 *
+	 * We recommend to use that when comparing spells name it's a lot faster than string compare
+	 *
+	 * spell_data->get_name_hash() == spell_hash("ZeriR")
+	 *
+	 * spell_hash is ignorecase hashing function
+	 *
+	 * Example: spell_hash("ZeriR");
+	 */
 #define spell_hash(str) (std::integral_constant<std::uint32_t, spell_hash_real(str)>::value)
 
 #define translation_hash(str) (std::integral_constant<std::uint64_t, translation_hash_64_runtime(str)>::value)
 
- /**
-  * Same as buff_hash but you can use it in runtime
-  *
-  * Example: buff_hash_real("ZeriR");
-  */
+	 /**
+	  * Same as buff_hash but you can use it in runtime
+	  *
+	  * Example: buff_hash_real("ZeriR");
+	  */
 constexpr std::uint32_t const buff_hash_real( const char* str )
 {
 	std::uint32_t hash = 0x811C9DC5;
@@ -224,7 +225,7 @@ constexpr std::uint32_t const spell_hash_real( const char* str ) /*use for scrip
 		hash = current_upper + 0x10 * hash;
 
 		if ( hash & 0xF0000000 )
-			hash ^= (hash & 0xF0000000) ^ ( ( hash & 0xF0000000 ) >> 24 );
+			hash ^= ( hash & 0xF0000000 ) ^ ( ( hash & 0xF0000000 ) >> 24 );
 	}
 
 	return hash;
@@ -369,7 +370,7 @@ public:
 	float y;
 	float z;
 	float w;
-	vector4( ) : x( 0.f ), y( 0.f ), z( 0.f ), w( 0.f ) { }
+	vector4( ): x( 0.f ), y( 0.f ), z( 0.f ), w( 0.f ) { }
 	vector4( float x, float y, float z, float w ): x( x ), y( y ), z( z ), w( w ) { }
 };
 
@@ -415,7 +416,7 @@ public:
 	vector operator/( const vector& v ) const;
 	vector operator*( float fl ) const;
 	vector operator/( float fl ) const;
-	
+
 	//Checks whether the object is still valid meaning if its still in the game
 	//
 	bool is_valid( ) const;
@@ -1319,7 +1320,7 @@ class game_object
 {
 public:
 	virtual void update( ) = 0;
-	
+
 	//Set's the object skin
 	//	- id of the skin
 	//	- desired model name
@@ -1344,11 +1345,11 @@ public:
 	//Returns base model.  For champions it will be the champion's name.
 	//
 	virtual std::string get_model( ) = 0;
-	
+
 	//Returns the base skin name of the object.
 	//
 	virtual std::string get_base_skin_name( ) = 0;
-	
+
 	//Returns name of the object. For champions it will be the Player's name.
 	//
 	virtual std::string get_name( ) = 0;
@@ -1358,11 +1359,11 @@ public:
 	//Returns the object team. 
 	//
 	virtual game_object_team get_team( ) = 0;
-	
+
 	//Returns instance of object_type_script class containing information about object type
 	//
 	virtual object_type_script get_type( ) = 0;
-	
+
 	//Returns auto attack spell data of the object.
 	//
 	virtual spell_data_script get_auto_attack( ) = 0;
@@ -1374,7 +1375,7 @@ public:
 	virtual uint16_t get_id( ) = 0;
 	virtual uint32_t get_handle( ) = 0;
 	virtual uint32_t get_object_owner( ) = 0;
-	
+
 	//Returns the owner of the object otherwise nullptr. Calling this function on Tibbers will return Annie (the owner of Tibbers)
 	// - Please remember owner is not yet set to an object in on_create event.
 	//   Game sets the owner in later update ticks
@@ -1404,15 +1405,15 @@ public:
 	//Returns true if object is a nexus
 	//
 	virtual bool is_nexus( ) = 0;
-	
+
 	//Returns true if object is an inhibitor
 	//
 	virtual bool is_inhibitor( ) = 0;
-	
+
 	//Checks whether the object is winding up. Meaning if the object is doing an action like. casting spell or autoattack.
 	//
 	virtual bool is_winding_up( ) = 0;
-	
+
 	//Returns mana needed to use a spell 
 	//	- spellslot of the spell
 	virtual float get_mana_for_spell( spellslot slot ) = 0;
@@ -1430,104 +1431,104 @@ public:
 	//Checks if the object is recalling to base
 	//
 	bool is_recalling( );
-	
+
 	//Checks if the object is the local player.
 	//
 	virtual bool is_me( ) = 0;
-	
+
 	//Checks if the object is visible. Meaning if it's not in FOW
 	//
 	virtual bool is_visible( ) = 0;
-	
+
 	//Checks if the target is in auto attack range of the object.
 	//	- target
 	//	- additional range 
 	//
 	bool is_in_auto_attack_range( game_object_script to, float additional = 0.f );
 	bool is_in_auto_attack_range_native( game_object* to, float additional = 0.f );
-	
+
 	//Checks whether the object is under enemy turret (enemy towards the object)
 	//
 	bool is_under_enemy_turret( );
-	
+
 	//Checks if the object can issue an attack command.
 	//Example: if the object is stunned function will return false
 	//
 	virtual bool can_attack( ) = 0;
-	
+
 	//Checks if the object can issue a move command.
 	//Example: if the object is stunned function will return false
 	//
 	virtual bool can_move( ) = 0;
-	
+
 	//Checks if the object can cast a spell.
 	//Example: if the object is stunned function will return false
 	//
 	virtual bool can_cast( ) = 0;
-	
+
 	//Returns true if object is a monster (mobs in jungle)
 	//
 	virtual bool is_monster( ) = 0;
-	
+
 	//Returns true if object is a minion
 	//
 	virtual bool is_minion( ) = 0;
-	
+
 	//Checks if the object is stealthed.
 	//
 	virtual bool is_stealthed( ) = 0;
-	
+
 	//Checks if the object is immovable.
 	//
 	virtual bool is_immovable( ) = 0;
-	
+
 	//Checks if the object is ghosted (has move speed buff).
 	//
 	virtual bool is_ghosted( ) = 0;
-	
+
 	//Returns true if object is a jungle buff (blue buff, red buff)
 	//
 	virtual bool is_jungle_buff( ) = 0;
-	
+
 	//Returns true if object is an epic monster (baron, herald, dragon)
 	//
 	virtual bool is_epic_monster( ) = 0;
-	
+
 	//Returns true if object is a lane minion
 	//
 	virtual bool is_lane_minion( ) = 0;
-	
+
 	//Checks if the object is dead.
 	//
 	virtual bool is_dead( ) = 0;
-	
+
 	//Checks if the object is melee. 
 	//
 	virtual bool is_melee( ) = 0;
-	
+
 	//Checks if the object is ranged.
 	//
 	virtual bool is_ranged( ) = 0;
-	
+
 	//Checks if the object is an ally towards local player.
 	//
 	virtual bool is_ally( ) = 0;
-	
+
 	//Checks if the object is enemy towards local player.
 	//
 	virtual bool is_enemy( ) = 0;
-	
+
 	//Returns true if object is a plant
 	//
 	virtual bool is_plant( ) = 0;
-	
+
 	//Returns true if object IsValid and also if it is targetable for autoattacks
 	//	float range - maximum range from Player to entity_list
 	//	vector from - if set to zero range will be checked from Player position otherwise from the vector you pass
 	//	bool ignore_invulnerability - skips the check for is_invurnelable (Kayle R, Zhonyas etc)
 	//
 	bool is_valid_target( float range = FLT_MAX, vector const& from = vector( 0, 0 ), bool ignore_invulnerability = false );
-	
+
 	//Checks whether an object has a perk of given id
 	//	- id of the perk
 	//
@@ -1537,50 +1538,50 @@ public:
 	//	- hashed buff name
 	//
 	virtual buff_instance_script get_buff( uint32_t hash ) = 0;
-	
+
 	//Returns a buff with a given type otherwise nullptr.
 	//	- type of the buff
 	//
 	virtual buff_instance_script get_buff_by_type( buff_type type ) = 0;
-	
+
 	//Check whether the object has buff of the hashed name
 	//	- hashed buff name
 	//
 	virtual bool has_buff( uint32_t hash ) = 0;
-	
+
 	//Check whether the object has any buff of the hashed names
 	//	- vector of hashed buff names
 	//
 	virtual bool has_buff( const std::vector<uint32_t>& hashes ) = 0;
-	
+
 	//Returns spellslot of an item for a given ItemId otherwise spellslot::invalid.
 	//	- ItemId of an item
 	//
 	virtual spellslot has_item( int32_t itemid ) = 0;
-	
+
 	//Returns spellslot of given ItemIds otherwise spellslot::invalid.
 	//	- vector of ItemIds
 	//
 	virtual spellslot has_item( const std::vector<ItemId>& itemid ) = 0;
 	virtual int32_t get_minion_type( ) = 0;
-	
+
 	//Returns buff count of a buff with a given hash name otherwise 0.
 	//	- hashed buff name
 	//
 	virtual int get_buff_count( uint32_t hash ) = 0;
-	
+
 	//Returns true if object is a champion
 	//
 	virtual bool is_ai_hero( ) = 0;
-	
+
 	//Returns true for objects that inherit from AIBase. Ex. AIHero, AIMinion, AITurret
 	//
 	virtual bool is_ai_base( ) = 0;
-	
+
 	//Returns true if object is a minion (any type, jungle monsters, lane minions, wards, etc)
 	//
 	virtual bool is_ai_minion( ) = 0;
-	
+
 	//Returns true if object is a turret
 	//
 	virtual bool is_ai_turret( ) = 0;
@@ -1606,12 +1607,12 @@ public:
 	virtual spell_state get_spell_state( spellslot spell ) = 0;
 
 	virtual bool obj_is_attackable( ) = 0;
-	
+
 	//Checks if object is targetable to team.
 	//	- team to check
 	//
 	virtual bool is_targetable_to_team( game_object_team team ) = 0;
-	
+
 	//Checks if object is targetable.
 	//
 	virtual bool is_targetable( ) = 0;
@@ -1688,12 +1689,12 @@ public:
 	//Returns the NetworkId of the object.
 	//
 	virtual uint32_t get_network_id( ) = 0;
-	
+
 	//Returns the numer of allies around the object (allies towards the object)
 	//	- maximum range from object to allies
 	//
 	int32_t count_allies_in_range( float range );
-	
+
 	//Returns the numer of enemies around the object (enemies towards the object)
 	//	- maximum range from object to enemies
 	//
@@ -1705,14 +1706,14 @@ public:
 	//	- enable or disable core humanizer
 	//
 	virtual void issue_order( game_object_script target, bool trigger_event = true, bool use_humanizer = true ) = 0;
-	
+
 	//Issues a move command
 	//	- position of the order
 	//	- should event be triggered?
 	//	- set the order to attack_move
 	//
 	virtual void issue_order( vector game_pos, bool trigger_event = true, bool use_humanizer = true, bool attack_move = false ) = 0;
-	
+
 	//Issues an order on the player
 	//	- _issue_order_type type of the order
 	//	- should event be triggered?
@@ -1723,11 +1724,11 @@ public:
 	//Returns the perpendicular direction of the object.
 	//
 	virtual vector get_direction_perpendicular( ) = 0;
-	
+
 	//Returns the direction of the object.
 	//
 	virtual vector get_direction( ) = 0;
-	
+
 	//Returns the direction on the waypoint of the object.
 	//
 	virtual vector get_pathing_direction( ) = 0;
@@ -1736,19 +1737,19 @@ public:
 	//	- the object to check
 	//
 	virtual bool is_facing( game_object_script obj ) = 0;
-	
+
 	//Checks whether the object is facing a position.
 	//	- the position to check
 	//
 	virtual bool is_facing( const vector& position ) = 0;
-	
+
 	//Casts a spell
 	//	- slot of the spell to be casted
 	//	- should event be triggered?
 	//	- is charded spell
 	//
 	virtual void cast_spell( spellslot slot, bool trigger_event = true, bool is_charging = false ) = 0;
-	
+
 	//Casts a spell
 	//	- slot of the spell to be casted
 	//	- position to where spell needs to be casted
@@ -1756,7 +1757,7 @@ public:
 	//	- is charded spell
 	//
 	virtual void cast_spell( spellslot slot, const vector& pos, bool trigger_event = true, bool is_charging = false ) = 0;
-	
+
 	//Casts a spell
 	//	- slot of the spell to be casted
 	//	- target of the spell
@@ -1768,16 +1769,16 @@ public:
 	//Checks whether the object is immune to physical damage.
 	//
 	virtual bool is_physical_immune( ) = 0;
-	
+
 	//Checks whether the object is immune to magical damage.
 	//
 	virtual bool is_magic_immune( ) = 0;
-	
+
 	//Checks whether the object is immune to lifesteal. 
 	//Meaning if dealing damage will return back % health of the damage dealt (if you have lifesteal).
 	//
 	virtual bool is_lifesteal_immune( ) = 0;
-	
+
 	//Checks whether the object is immune to any source of damage. (Kayle R, zhonyas, etc.)
 	//
 	virtual bool is_invulnerable( ) = 0;
@@ -1799,7 +1800,7 @@ public:
 	//Checks whether the object is using a teleport.
 	//
 	virtual bool is_teleporting( ) = 0;
-	
+
 	//Returns the teleport state.
 	//Possible return values: "Recall", "SuperRecall", "SummonerTeleport", "Gate", "shenrchannelmanagerm", "shenrtargettracker", "YuumiW"
 	//
@@ -1872,17 +1873,17 @@ public:
 	//Checks whether the object is under ally turret (ally towards the object)
 	//
 	bool is_under_ally_turret( );
-	
+
 	//Returns 2 dimensional distance from object to position.
 	//	- position in the game
 	//
 	float get_distance( vector const& to );
-	
+
 	//Returns time left of a buff with a given hash name otherwise 0.
 	//	- hashed buff name
 	//
 	float get_buff_time_left( uint32_t hash );
-	
+
 	//Levels a spell on a given spellslot
 	//	- spellslot of the spell
 	//
@@ -1891,7 +1892,7 @@ public:
 	//Returns the object BoundingBox min
 	//
 	virtual vector get_bbox_min( ) = 0;
-	
+
 	//Returns the object BoundingBox max
 	//
 	virtual vector get_bbox_max( ) = 0;
@@ -1901,7 +1902,7 @@ public:
 	virtual const char* get_name_cstr( ) = 0;
 
 	virtual const char* get_model_cstr( ) = 0;
-	
+
 	//Casts a spell
 	//	- slot of the spell to be casted
 	//	- start position of the spell
@@ -1910,7 +1911,7 @@ public:
 	//	- is charded spell
 	//
 	virtual void cast_spell( spellslot slot, const vector& startPos, const vector& endPos, bool trigger_event = true, bool is_charging = false ) = 0;
-	
+
 	//Updates a charged spell
 	//	- slot of the spell to be updated
 	//	- position of the spell to be updated
@@ -1918,7 +1919,7 @@ public:
 	//	- should event be triggered?
 	//
 	virtual void update_charged_spell( spellslot slot, const vector& position, bool releaseCast, bool trigger_event = true ) = 0;
-	
+
 	//Checks whether the object has had it's HPBar recently rendered
 	//
 	virtual bool is_hpbar_recently_rendered( ) = 0;
@@ -1927,11 +1928,11 @@ public:
 	//Returns the particle rotation right vector.
 	//
 	virtual vector get_particle_rotation_right( ) = 0;
-	
+
 	//Returns the particle rotation up vector.
 	//
 	virtual vector get_particle_rotation_up( ) = 0;
-	
+
 	//Returns the particle rotation forward vector.
 	//
 	virtual vector get_particle_rotation_forward( ) = 0;
@@ -1942,7 +1943,7 @@ public:
 	//	- type of the ping to send
 	//
 	virtual void cast_ping( const vector& position, game_object_script object, _player_ping_type ping_type ) = 0;
-		
+
 	//Calculates the path starting from object position to the end
 	//	- position where waypoint ends
 	//
@@ -1954,7 +1955,7 @@ public:
 	//	- id of the float_hero_stat
 	//
 	virtual float get_hero_stat( float_hero_stat id ) = 0;
-	
+
 	//Returns the int hero stat
 	//	- id of the int_hero_stat
 	//
@@ -2003,7 +2004,7 @@ public:
 	virtual void request_to_display_emote( summoner_emote_slot slot ) = 0;
 
 	virtual void send_latency_ping( std::uint16_t latency ) = 0;
-	virtual void send_spell_ping(game_object_script hero, std::int32_t spell ) = 0;
+	virtual void send_spell_ping( game_object_script hero, std::int32_t spell ) = 0;
 	virtual void send_hero_ping( game_object_script hero ) = 0;
 
 	virtual float get_base_hp( ) = 0;
@@ -2014,9 +2015,10 @@ public:
 	virtual void print_chat( std::uint32_t flags, const char* format, ... ) = 0;
 
 	virtual game_object_script get_particle_attachment_object( ) = 0;
+	virtual game_object_script get_particle_target_attachment_object( ) = 0;
 
 	bool is_valid( bool force = false );
-	
+
 	//Returns the immovibility time left of the object
 	//
 	float get_immovibility_time( );
@@ -2024,7 +2026,7 @@ public:
 	//Checks whether the object is moving.
 	//
 	bool is_moving( );
-	
+
 	//Checks whether the object is dashing.
 	//
 	bool is_dashing( );
@@ -2033,7 +2035,7 @@ public:
 	//	- type of the buff
 	//
 	bool has_buff_type( buff_type type );
-	
+
 	//Check whether the object has any of the buffs of type you pass
 	//	- vector of buff types
 	//
@@ -2043,12 +2045,12 @@ public:
 	//	- ItemId of an item
 	//
 	bool is_item_ready( int32_t itemid );
-	
+
 	//Checks whether the item of given id is owned by the object and ready to use.
 	//	- ItemId of an item
 	//
 	bool is_item_ready( ItemId itemid );
-	
+
 	//Returns spellslot of given ItemIds otherwise spellslot::invalid.
 	//	- vector of ItemIds
 	//
@@ -2550,7 +2552,7 @@ public:
 	// They are visible and can be attacked
 	//   You don't need to call is_visible and is_valid_target
 	//
-	virtual const std::vector<std::shared_ptr<game_object>>& get_attackable_objects( ) = 0;
+	virtual const std::vector<game_object_script>& get_attackable_objects( ) = 0;
 
 	// AttackableUnit
 	//
@@ -2583,7 +2585,9 @@ namespace TreeEntryType
 		Combobox,
 		ColorPicker,
 		ProrityList,
-		Image
+		Image,
+		TextInput,
+		Button
 	};
 };
 
@@ -2661,6 +2665,20 @@ public:
 	//
 	virtual std::pair<std::int32_t, bool> get_prority( std::uint32_t key );
 
+	// Gets string value of element
+	//
+	// TreeTextInput*
+	//	 Returns current value of input
+	//
+	virtual const std::string& get_string( );
+
+	// Gets hotkey type
+	//
+	// TreeHotkey*
+	//	 Returns current hotkey type toggle/hold
+	//
+	virtual std::int32_t get_hotkey_type( );
+
 	// Sets bool value of element
 	//
 	//   See get_bool function for supported elements
@@ -2689,6 +2707,20 @@ public:
 	//     TreeTab*
 	//
 	virtual void set_texture( void* texture );
+
+	// Sets string to current menu element
+	//
+	//   Supported types
+	//     TreeTextInput*
+	//
+	virtual void set_string( const std::string& );
+
+	// Sets color to current menu element
+	//
+	//   Supported types
+	//     TreeColorPicker*
+	//
+	virtual void set_color( float* color );
 
 	// Determines if element is hidden
 	//
@@ -2745,6 +2777,18 @@ public:
 	//   See Tooltip section to get more information
 	//
 	virtual void set_tooltip( const std::string& tooltip );
+
+	// Apply filter for TreeCombobox
+	//
+	//   Use only when you want to re apply filter
+	//
+	virtual void apply_filter( );
+
+	// Apply filter for TreeCombobox
+	//
+	//   You can combine it with TreeTextInput
+	//
+	virtual void apply_filter( const std::string& filter, bool ignore_case, bool save_filter = true );
 
 	//Reserved for core
 	//
@@ -2827,6 +2871,18 @@ public:
 	// See TreeImage element to get more information
 	//
 	virtual TreeEntry* add_image_item( const std::string& key, void* texture, const std::int32_t& height );
+
+	// Creates or gets (if already exists and type is TreeTextInput) menu element
+	//
+	// See TreeTextInput element to get more information
+	//
+	virtual TreeEntry* add_text_input( const std::string& key, const std::string& name, const std::string& default_value, const bool& should_save = true );
+
+	// Creates or gets (if already exists and type is TreeButton) menu element
+	//
+	// See TreeButton element to get more information
+	//
+	virtual TreeEntry* add_button( const std::string& key, const std::string& name );
 
 	// Remove all sub elements of this tab
 	//
@@ -3403,8 +3459,8 @@ struct event_handler<events::on_draw>
 template < >
 struct event_handler<events::on_global_event>
 {
-	static void add_callback( void( *callback )(std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_global_event, ( void* ) callback ); }
-	static void remove_handler( void( *callback )(std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_global_event, ( void* ) callback ); }
+	static void add_callback( void( *callback )( std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_global_event, ( void* ) callback ); }
+	static void remove_handler( void( *callback )( std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_global_event, ( void* ) callback ); }
 };
 
 template < >
@@ -4145,9 +4201,9 @@ namespace antigapcloser
 		bool is_unstoppable;
 		bool is_cc;
 
-		antigapcloser_args( ) : type( gapcloser_type::skillshot ), target( nullptr ), 
-								start_time( 0.f ), end_time( 0.f ), speed( 0.f ),
-								is_unstoppable( false ), is_cc( false )
+		antigapcloser_args( ): type( gapcloser_type::skillshot ), target( nullptr ),
+			start_time( 0.f ), end_time( 0.f ), speed( 0.f ),
+			is_unstoppable( false ), is_cc( false )
 		{
 
 		}
@@ -4242,4 +4298,3 @@ namespace mec
 	mec_circle get_mec( const std::vector<vector>& points );
 	std::vector<vector> make_convex_hull( std::vector<vector> points );
 };
-
