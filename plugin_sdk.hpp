@@ -2150,7 +2150,7 @@ public:
 	virtual std::int32_t get_height( ) = 0;
 	virtual float get_cell_size( ) = 0;
 	virtual void get_cell_center( vector& pos, std::int32_t cell_x, std::int32_t cell_y ) = 0;
-	virtual nav_collision_flags get_collision_flag( std::int32_t cell_x, std::int32_t cell_y ) = 0;
+	virtual nav_collision_flags get_collision_flag_by_cell( std::int32_t cell_x, std::int32_t cell_y ) = 0;
 	virtual void get_cell_location( const vector& pos, std::int32_t& cell_x, std::int32_t& cell_y ) = 0;
 };
 
