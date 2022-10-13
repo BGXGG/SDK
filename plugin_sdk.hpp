@@ -2080,6 +2080,8 @@ class hud_spell_logic
 {
 public:
 	virtual bool has_charged_spell( ) = 0;
+	virtual spell_data_script get_charged_spell( ) = 0;
+	virtual void set_next_charge_update( float time ) = 0;
 };
 
 class hud_input_logic
