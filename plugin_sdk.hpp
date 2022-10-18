@@ -2016,6 +2016,29 @@ public:
 
 	virtual game_object_script get_particle_attachment_object( ) = 0;
 	virtual game_object_script get_particle_target_attachment_object( ) = 0;
+	
+	virtual std::int32_t get_arType( ) = 0;
+	virtual float get_arBase( ) = 0;
+	virtual float get_arPerLevel( ) = 0;
+	virtual float get_arBaseStaticRegen( ) = 0;
+	virtual float get_arRegenPerLevel( ) = 0;
+	virtual float get_hpPerLevel( ) = 0;
+	virtual float get_baseStaticHPRegen( ) = 0;
+	virtual float get_hpRegenPerLevel( ) = 0;
+	virtual float get_baseDamage( ) = 0;
+	virtual float get_damagePerLevel( ) = 0;
+	virtual float get_baseArmor( ) = 0;
+	virtual float get_armorPerLevel( ) = 0;
+	virtual float get_baseSpellBlock( ) = 0;
+	virtual float get_spellBlockPerLevel( ) = 0;
+	virtual float get_baseMoveSpeed( ) = 0;
+	virtual float get_attackRange( ) = 0;
+	virtual float get_attackSpeed( ) = 0;
+	virtual float get_attackSpeedRatio( ) = 0;
+	virtual float get_attackSpeedPerLevel( ) = 0;
+	virtual float get_acquisitionRange( ) = 0;
+	virtual float get_selectionHeight( ) = 0;
+	virtual float get_selectionRadius( ) = 0;
 
 	bool is_valid( bool force = false );
 
