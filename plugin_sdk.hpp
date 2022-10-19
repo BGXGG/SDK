@@ -2039,6 +2039,8 @@ public:
 	virtual float get_acquisitionRange( ) = 0;
 	virtual float get_selectionHeight( ) = 0;
 	virtual float get_selectionRadius( ) = 0;
+	
+	virtual std::int32_t get_evolve_points( ) = 0;
 
 	bool is_valid( bool force = false );
 
