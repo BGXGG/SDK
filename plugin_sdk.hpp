@@ -974,12 +974,13 @@ enum class spell_targeting: unsigned char
 	target_or_location = 5,
 	location = 6,
 	direction = 7,
-	drag_direction = 8,
-	invalid = 9,
-	area_clamped = 10,
-	location_clamped = 11,
-	terrain_location = 12,
-	terrain_type = 13
+	drag_direction = 9,
+	invalid = 10,
+	area_clamped = 11,
+	location_clamped = 12,
+	terrain_location = 13,
+	terrain_type = 14,
+	wall_detection = 15
 };
 
 class spell_data
