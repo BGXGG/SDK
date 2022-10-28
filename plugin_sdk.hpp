@@ -3207,6 +3207,8 @@ public:
 	virtual void add_image( uint32_t* user_texture_id, const vector& pos, const vector& size, float rounding = 0.0f, const vector& uv0 = vector( 0, 0 ), const vector& uv1 = vector( 1, 1 ), const ImVec4& tint_col = ImVec4( 1, 1, 1, 1 ), const ImVec4& border_col = ImVec4( 0, 0, 0, 0 ) );
 	virtual vector calc_text_size( int font_size, const char* format, ... ) = 0;
 	virtual loaded_texture* load_texture_from_file( const std::wstring& path ) = 0;
+	virtual void add_filled_circle_on_screen( vector const& center, float radius, unsigned long color, int num_segments = 30 ) = 0;
+	virtual void add_filled_circle( vector const& center, float radius, unsigned long color, float height = -1.f, int num_segments = 30 ) = 0;
 	void draw_circle_on_minimap( vector const& center, float radius, unsigned long color, float thickness = 1.f, int quality = 40 );
 };
 
