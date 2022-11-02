@@ -30,6 +30,7 @@ sound_manager* sound = nullptr;
 evade_manager* evade = nullptr;
 neutral_camp_manager* camp_manager = nullptr;
 translation_manager* translation = nullptr;
+game_database* database = nullptr;
 
 std::uint16_t locked_target_selector::_last_target_id = 0;
 std::uint32_t locked_target_selector::_last_target_network_id = 0;
