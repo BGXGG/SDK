@@ -407,15 +407,46 @@ public:
 	projection_info project_on( const vector& segment_start, const vector& segment_end ) const;
 	intersection_result intersection( const vector& line_segment_end, const vector& line_segment2_start, const vector& line_segment2_end ) const;
 
-	vector& operator=( const vector& vOther );
+	inline vector& operator=( const vector& vOther )
+	{
+		x = vOther.x; y = vOther.y; z = vOther.z;
+		return *this;
+	}
 
-	vector operator-( ) const;
-	vector operator+( const vector& v ) const;
-	vector operator-( const vector& v ) const;
-	vector operator*( const vector& v ) const;
-	vector operator/( const vector& v ) const;
-	vector operator*( float fl ) const;
-	vector operator/( float fl ) const;
+	inline vector operator-( ) const
+	{
+		return vector( -x, -y, -z );
+	}
+
+	inline vector operator+( const vector& v ) const
+	{
+		return vector( this->x + v.x, this->y + v.y, this->z );
+	}
+
+	inline vector operator-( const vector& v ) const
+	{
+		return vector( this->x - v.x, this->y - v.y, this->z );
+	}
+
+	inline vector operator*( const vector& v ) const
+	{
+		return vector( this->x * v.x, this->y * v.y, this->z );
+	}
+
+	inline vector operator/( const vector& v ) const
+	{
+		return vector( this->x / v.x, this->y / v.y, this->z );
+	}
+
+	inline vector operator*( float fl ) const
+	{
+		return vector( this->x * fl, this->y * fl, this->z );
+	}
+
+	inline vector operator/( float fl ) const
+	{
+		return vector( this->x / fl, this->y / fl, this->z );
+	}
 
 	//Checks whether the object is still valid meaning if its still in the game
 	//
@@ -970,7 +1001,7 @@ enum class spell_targeting: unsigned char
 	self,
 	target,
 	area,
-	area_aim.
+	area_aim,
 	cone,
 	self_aoe,
 	target_or_location,
@@ -2020,7 +2051,7 @@ public:
 
 	virtual game_object_script get_particle_attachment_object( ) = 0;
 	virtual game_object_script get_particle_target_attachment_object( ) = 0;
-	
+
 	virtual std::int32_t get_arType( ) = 0;
 	virtual float get_arBase( ) = 0;
 	virtual float get_arPerLevel( ) = 0;
@@ -2043,7 +2074,7 @@ public:
 	virtual float get_acquisitionRange( ) = 0;
 	virtual float get_selectionHeight( ) = 0;
 	virtual float get_selectionRadius( ) = 0;
-	
+
 	virtual std::int32_t get_evolve_points( ) = 0;
 
 	bool is_valid( bool force = false );
