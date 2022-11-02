@@ -1134,47 +1134,6 @@ intersection_result vector::intersection( const vector& line_segment_end, const 
 	return result;
 }
 
-vector& vector::operator=( const vector& vOther )
-{
-	x = vOther.x; y = vOther.y; z = vOther.z;
-	return *this;
-}
-
-vector vector::operator-( ) const
-{
-	return vector( -x, -y, -z );
-}
-
-vector vector::operator+( const vector& v ) const
-{
-	return vector( this->x + v.x, this->y + v.y, this->z );
-}
-
-vector vector::operator-( const vector& v ) const
-{
-	return vector( this->x - v.x, this->y - v.y, this->z );
-}
-
-vector vector::operator*( const vector& v ) const
-{
-	return vector( this->x * v.x, this->y * v.y, this->z );
-}
-
-vector vector::operator/( const vector& v ) const
-{
-	return vector( this->x / v.x, this->y / v.y, this->z );
-}
-
-vector vector::operator*( float fl ) const
-{
-	return vector( this->x * fl, this->y * fl, this->z );
-}
-
-vector vector::operator/( float fl ) const
-{
-	return vector( this->x / fl, this->y / fl, this->z );
-}
-
 bool vector::is_in_fow( ) const
 {
 	return navmesh->is_in_fow( *this );;
