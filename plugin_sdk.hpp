@@ -134,6 +134,7 @@ champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
 		evade		       = PLUGIN_SDK->get_evade_manager(); \
 		camp_manager	   = PLUGIN_SDK->get_neutral_camp_manager(); \
 		translation	       = PLUGIN_SDK->get_translation_manager(); \
+		database	       = PLUGIN_SDK->get_game_database(); \
 		entitylist		   = PLUGIN_SDK->get_entity_list();
 
 
@@ -2077,6 +2078,8 @@ public:
 
 	virtual std::int32_t get_evolve_points( ) = 0;
 
+	virtual vector get_velocity( ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
@@ -3179,13 +3182,6 @@ struct damage_input
 	damage_input( ) = default;
 };
 
-struct skin_info
-{
-	std::string name;
-	std::string model;
-	uint32_t skin_id;
-};
-
 class damagelib_manager
 {
 public:
@@ -3443,6 +3439,12 @@ public:
 	virtual wchar_t* get_translation( std::uint64_t key ) = 0;
 };
 
+class game_database
+{
+public:
+	virtual spell_data_script get_spell_by_hash( std::uint32_t hash ) = 0;
+};
+
 class evade_manager;
 class plugin_sdk_core
 {
@@ -3470,7 +3472,7 @@ public:
 	virtual damagelib_manager* get_damagelib_manager( ) = 0;
 	virtual drawning_manager* get_drawning_manager( ) = 0;
 	virtual scheduler_manager* get_scheduler_manager( ) = 0;
-	virtual std::map<champion_id, std::vector<skin_info>>& get_skins_database( ) = 0;
+	virtual game_database* get_game_database( ) = 0;
 	virtual console_manager* get_console_manager( ) = 0;
 	virtual glow_manager* get_glow_manager( ) = 0;
 	virtual void* get_is_valid_function( ) = 0;
@@ -3689,6 +3691,7 @@ extern glow_manager* glow;
 extern sound_manager* sound;
 extern neutral_camp_manager* camp_manager;
 extern translation_manager* translation;
+extern game_database* database;
 
 namespace geometry
 {
