@@ -967,22 +967,23 @@ public:
 
 enum class spell_targeting: unsigned char
 {
-	self = 0,
-	target = 1,
-	area = 2,
-	cone = 3,
-	self_aoe = 4,
-	target_or_location = 5,
-	location = 6,
-	direction = 7,
-	direction_aim = 8,
-	drag_direction = 9,
-	line_target_to_caster = 10,
-	area_clamped = 11,
-	location_clamped = 12,
-	terrain_location = 13,
-	terrain_type = 14,
-	wall_detection = 15
+	self,
+	target,
+	area,
+	area_aim.
+	cone,
+	self_aoe,
+	target_or_location,
+	location,
+	direction,
+	direction_aim,
+	drag_direction,
+	line_target_to_caster,
+	area_clamped,
+	location_clamped,
+	terrain_location,
+	terrain_type,
+	wall_detection
 };
 
 class spell_data
