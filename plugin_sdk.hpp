@@ -906,6 +906,7 @@ enum class champion_id
 	Renata = 888,
 	Belveth = 200,
 	Nilah = 895,
+	KSante = 897,
 	Unknown = 5000,
 	TFTChampion,
 	SG_Skarner,
