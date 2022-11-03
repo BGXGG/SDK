@@ -1136,6 +1136,8 @@ public:
 	virtual float mSpellCooldownOrSealedQueueThreshold( ) = 0;
 	virtual std::vector<const char*> mSpellTags( ) = 0;
 	virtual std::vector<const char*> mImgIconName( ) = 0;
+	
+	virtual std::uint32_t* get_icon_texture_by_index( int8_t index ) = 0;
 };
 
 class spell_data_inst
