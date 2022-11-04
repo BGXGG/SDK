@@ -60,7 +60,7 @@ void on_cast_spell( spellslot spell_slot, game_object_script target, vector& pos
 	if ( spell_slot >= spellslot::q && spell_slot <= spellslot::r && myhero->get_spell_state( spell_slot ) == spell_state::Ready )
 	{
 		if ( !target && gametime->get_time( ) < next_spell_cast_t && enabled_spellslots[ spell_slot ] ) *process = false;
-		else next_spell_cast_t = gametime->get_time( ) + ping->get_ping( ) / 2000.f + 0.033f;
+		else next_spell_cast_t = gametime->get_time( ) + ping->get_ping( ) / 1000.f + 0.133f;
 	}
 }
 
@@ -2671,6 +2671,9 @@ buff_instance_script script_spell::get_charge_buff( )
 {
 	if ( this->is_charged_spell )
 	{
+		if ( auto name = this->charge_buff_name )
+			return myhero->get_buff( name );
+
 		switch ( myhero->get_champion( ) )
 		{
 			case champion_id::Varus:
