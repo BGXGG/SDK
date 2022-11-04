@@ -1136,7 +1136,7 @@ public:
 	virtual float mSpellCooldownOrSealedQueueThreshold( ) = 0;
 	virtual std::vector<const char*> mSpellTags( ) = 0;
 	virtual std::vector<const char*> mImgIconName( ) = 0;
-	
+
 	virtual std::uint32_t* get_icon_texture_by_index( int8_t index ) = 0;
 };
 
@@ -3304,6 +3304,8 @@ public:
 	std::vector<collisionable_objects> collision_flags{};
 	damage_type _damage_type{};
 
+	std::uint32_t charge_buff_name = 0;
+
 	script_spell( );
 	script_spell( spellslot slot );
 	script_spell( spellslot slot, float range );
@@ -3376,6 +3378,7 @@ public:
 	virtual bool is_in_range( game_object_script target, float range = -1 );
 	virtual bool is_in_range( vector const& point, float range = -1 );
 
+	void set_charge_buff_name( std::uint32_t name ) { this->charge_buff_name = name; }
 	void set_spell_lock( bool value );
 	bool is_spell_locked( );
 	int8_t icon_index( );
