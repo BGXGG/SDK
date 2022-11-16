@@ -2081,6 +2081,8 @@ public:
 	virtual std::int32_t get_evolve_points( ) = 0;
 
 	virtual vector get_velocity( ) = 0;
+	virtual bool is_playing_animation( std::uint32_t anim_hash ) = 0;
+	virtual bool has_time_remaining_for_animation( std::uint32_t anim_hash, float time ) = 0;
 
 	bool is_valid( bool force = false );
 
