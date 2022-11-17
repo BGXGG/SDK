@@ -3998,13 +3998,16 @@ namespace geometry
 			return result.size( ) > 0 ? result : std::vector<vector>{ path.back( ) };
 		}
 
-		static float path_length( std::vector<vector> path )
+		static float path_length( const std::vector<vector>& path )
 		{
-			float distance = 0.0f;
+			if ( path.empty( ) )
+				return 0.f;
+
+			float distance = 0.f;
+
 			for ( auto i = 0u; i < path.size( ) - 1; i++ )
-			{
 				distance += path[ i ].distance( path[ i + 1 ] );
-			}
+
 			return distance;
 		}
 
