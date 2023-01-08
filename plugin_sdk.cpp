@@ -57,7 +57,7 @@ float next_spell_cast_t = 0.f;
 
 void on_cast_spell( spellslot spell_slot, game_object_script target, vector& pos, vector& pos2, bool is_charge, bool* process )
 {
-	if ( spell_slot >= spellslot::q && spell_slot <= spellslot::r && myhero->get_spell_state( spell_slot ) == spell_state::Ready )
+	if ( spell_slot >= spellslot::q && spell_slot <= spellslot::r && myhero->get_spell_state( spell_slot ) == spell_state::Ready && !is_charge)
 	{
 		if ( !target && gametime->get_time( ) < next_spell_cast_t && enabled_spellslots[ spell_slot ] ) *process = false;
 		else next_spell_cast_t = gametime->get_time( ) + ping->get_ping( ) / 1000.f + 0.133f;
