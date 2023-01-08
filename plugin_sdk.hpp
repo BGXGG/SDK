@@ -522,6 +522,7 @@ enum class ItemId: uint32_t
 	Pickaxe = 1037,
 	B_F_Sword = 1038,
 	Hailblade = 1039,
+	Obsidian_Edge = 1040,
 	Dagger = 1042,
 	Recurve_Bow = 1043,
 	Amplifying_Tome = 1052,
@@ -533,6 +534,29 @@ enum class ItemId: uint32_t
 	Needlessly_Large_Rod = 1058,
 	Dark_Seal = 1082,
 	Cull = 1083,
+	Scorchclaw_Pup = 1101,
+	Gustwalker_Hatchling = 1102,
+	Mosstomper_Seedling = 1103,
+	Eye_of_the_Herald = 1104,
+	Penetrating_Bullets = 1500,
+	Fortification = 1501,
+	Reinforced_Armor = 1502,
+	Wardens_Eye = 1503,
+	Vanguard = 1504,
+	Lightning_Rod = 1505,
+	Reinforced_Armor_2 = 1506,
+	Overcharged = 1507,
+	Anti_tower_Socks = 1508,
+	Gusto = 1509,
+	Phreakish_Gusto = 1510,
+	Super_Mech_Armor = 1511,
+	Super_Mech_Power_Field = 1512,
+	Turret_Plating = 1515,
+	Structure_Bounty = 1516,
+	Structure_Bounty_2 = 1517,
+	Structure_Bounty_3 = 1518,
+	Structure_Bounty_4 = 1519,
+	OvererchargedHA = 1520,
 	Health_Potion = 2003,
 	Total_Biscuit_of_Everlasting_Will = 2010,
 	Kircheis_Shard = 2015,
@@ -548,10 +572,12 @@ enum class ItemId: uint32_t
 	Minion_Dematerializer = 2403,
 	Commencing_Stopwatch = 2419,
 	Stopwatch = 2420,
-	Broken_Stopwatch = 2421,
+	Broken_Stopwatch_Upgrades = 2421,
+	Slightly_Magical_Footwear = 2422,
 	Slightly_Magical_Footware = 2422,
 	Perfectly_Timed_Stopwatch = 2423,
-	Abyssal_Mask = 3001,
+	Broken_Stopwatch = 2424,
+	Evenshroud = 3001,
 	Archangels_Staff = 3003,
 	Manamune = 3004,
 	Berserkers_Greaves = 3006,
@@ -564,12 +590,12 @@ enum class ItemId: uint32_t
 	Mortal_Reminder = 3033,
 	Last_Whisper = 3035,
 	Lord_Dominiks_Regards = 3036,
+	Seraphs_Embrace = 3040,
 	Mejais_Soulstealer = 3041,
 	Muramana = 3042,
 	Phage = 3044,
 	Phantom_Dancer = 3046,
 	Plated_Steelcaps = 3047,
-	Seraphs_Embrace = 3048,
 	Zekes_Convergence = 3050,
 	Hearthbound_Axe = 3051,
 	Steraks_Gage = 3053,
@@ -588,6 +614,7 @@ enum class ItemId: uint32_t
 	Trinity_Force = 3078,
 	Wardens_Mail = 3082,
 	Warmogs_Armor = 3083,
+	Heartsteel = 3084,
 	Runaans_Hurricane = 3085,
 	Zeal = 3086,
 	Rabadons_Deathcap = 3089,
@@ -608,6 +635,8 @@ enum class ItemId: uint32_t
 	Nashors_Tooth = 3115,
 	Rylais_Crystal_Scepter = 3116,
 	Mobility_Boots = 3117,
+	Winters_Approach = 3119,
+	Fimbulwinter = 3121,
 	Executioners_Calling = 3123,
 	Guinsoos_Rageblade = 3124,
 	Caulfields_Warhammer = 3133,
@@ -624,10 +653,11 @@ enum class ItemId: uint32_t
 	Maw_of_Malmortius = 3156,
 	Zhonyas_Hourglass = 3157,
 	Ionian_Boots_of_Lucidity = 3158,
+	Spear_Of_Shojin = 3161,
 	Morellonomicon = 3165,
 	Guardians_Blade = 3177,
 	Umbral_Glaive = 3179,
-	Sanguine_Blade = 3181,
+	Hullbreaker = 3181,
 	Guardians_Hammer = 3184,
 	Locket_of_the_Iron_Solari = 3190,
 	Seekers_Armguard = 3191,
@@ -641,12 +671,14 @@ enum class ItemId: uint32_t
 	Your_Cut = 3400,
 	Ardent_Censer = 3504,
 	Essence_Reaver = 3508,
-	Eye_of_the_Herald = 3513,
+	Eye_of_the_Herald_2 = 3513,
 	Kalistas_Black_Spear = 3599,
+	Kalistas_Black_Spear_2 = 3600,
 	Dead_Mans_Plate = 3742,
 	Titanic_Hydra = 3748,
 	Crystalline_Bracer = 3801,
 	Lost_Chapter = 3802,
+	Catalyst_of_Aeons = 3803,
 	Edge_of_Night = 3814,
 	Spellthiefs_Edge = 3850,
 	Frostfang = 3851,
@@ -660,6 +692,9 @@ enum class ItemId: uint32_t
 	Spectral_Sickle = 3862,
 	Harrowing_Crescent = 3863,
 	Black_Mist_Scythe = 3864,
+	Fire_at_Will = 3901,
+	Deaths_Daughter = 3902,
+	Raise_Morale = 3903,
 	Oblivion_Orb = 3916,
 	Imperial_Mandate = 4005,
 	Force_of_Nature = 4401,
@@ -676,6 +711,8 @@ enum class ItemId: uint32_t
 	Stirring_Wardstone = 4641,
 	Bandleglass_Mirror = 4642,
 	Vigilant_Wardstone = 4643,
+	Crown_of_the_Shattered_Queen = 4644,
+	Shadowflame = 4645,
 	Ironspike_Whip = 6029,
 	Silvermere_Dawn = 6035,
 	Deaths_Dance = 6333,
@@ -688,9 +725,12 @@ enum class ItemId: uint32_t
 	Liandrys_Anguish = 6653,
 	Ludens_Tempest = 6655,
 	Everfrost = 6656,
+	Rod_of_Ages = 6657,
 	Bamis_Cinder = 6660,
-	Frostfire_Gauntlet = 6662,
+	Iceborn_Gauntlet = 6662,
 	Turbo_Chemtank = 6664,
+	JakSho_The_Protean = 6665,
+	Radiant_Virtue = 6667,
 	Noonquiver = 6670,
 	Galeforce = 6671,
 	Kraken_Slayer = 6672,
@@ -702,7 +742,38 @@ enum class ItemId: uint32_t
 	Eclipse = 6692,
 	Prowlers_Claw = 6693,
 	Seryldas_Grudge = 6694,
-	Serpents_Fang = 6695
+	Serpents_Fang = 6695,
+	Axiom_Arc = 6696,
+	Sandshrikes_Claw = 7000,
+	Syzygy = 7001,
+	Draktharrs_Shadowcarver = 7002,
+	Frozen_Fist = 7005,
+	Typhoon = 7006,
+	Wyrmfallen_Sacrifice = 7007,
+	Bloodward = 7008,
+	Icathias_Curse = 7009,
+	Vespertide = 7010,
+	Upgraded_Aeropack = 7011,
+	Liandrys_Lament = 7012,
+	Eye_of_Luden = 7013,
+	Eternal_Winter = 7014,
+	Ceaseless_Hunger = 7015,
+	Dreamshatter = 7016,
+	Deicide = 7017,
+	Infinity_Force = 7018,
+	Reliquary_of_the_Golden_Dawn = 7019,
+	Shurelyas_Requiem = 7020,
+	Starcaster = 7021,
+	Seat_of_Command = 7022,
+	Equinox = 7023,
+	Caesura = 7024,
+	Leviathan = 7025,
+	The_Unspoken_Parasite = 7026,
+	Primordial_Dawn = 7027,
+	Infinite_Convergence = 7028,
+	Gangplank_Placeholder = 7050,
+	Anathemas_Chains = 8001,
+	Abyssal_Mask = 8020
 };
 
 enum class action_state
@@ -1352,6 +1423,46 @@ enum class per_level_stat_type: std::int32_t
 	armor,
 	magic_resist,
 	crit = 6
+};
+
+enum class float_text_type_enum: std::int32_t
+{
+	Invulnerable,
+	Special,
+	Heal,
+	ManaHeal,
+	ManaDamage,
+	Dodge,
+	PhysicalDamageCritical,
+	MagicalDamageCritical,
+	TrueDamageCritical,
+	Experience,
+	Gold,
+	Level,
+	Disable,
+	QuestReceived,
+	QuestComplete,
+	Score,
+	PhysicalDamage,
+	MagicalDamage,
+	TrueDamage,
+	EnemyPhysicalDamage,
+	EnemyMagicalDamage,
+	EnemyTrueDamage,
+	EnemyPhysicalDamageCritical,
+	EnemyMagicalDamageCritical,
+	EnemyTrueDamageCritical,
+	Countdown,
+	OMW,
+	Absorbed,
+	Debug,
+	PracticeToolTotal,
+	PracticeToolLastHit,
+	PracticeToolDPS,
+	ScoreDarkStar,
+	ScoreProject0,
+	ScoreProject1,
+	ShieldBonusDamage
 };
 
 class game_object
@@ -2084,6 +2195,8 @@ public:
 	virtual bool is_playing_animation( std::uint32_t anim_hash ) = 0;
 	virtual bool has_time_remaining_for_animation( std::uint32_t anim_hash, float time ) = 0;
 
+	virtual bool add_floating_line( float_text_type_enum text_type, const char* format, ... ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
@@ -2133,6 +2246,10 @@ public:
 	virtual uint32_t screen_height( ) = 0;
 	virtual bool is_on_screen( const vector& screen, int tolerance ) = 0;
 	virtual void world_to_screen( const vector& world, vector& screen ) = 0;
+
+	virtual bool is_using_d3d9( ) = 0;
+	virtual void* d3d9_device( ) = 0;
+	virtual void* d3d11_device_swap_chain( ) = 0;
 };
 
 class hud_select_logic
@@ -2198,7 +2315,7 @@ public:
 	virtual void call_event( uint32_t type, const char* event_name, point2 mouse, vector cast = vector( 0, 0, 0 ) ) = 0;
 };
 
-enum class nav_collision_flags : std::int16_t
+enum class nav_collision_flags: std::int16_t
 {
 	none = 0,
 	grass = 1,
@@ -3047,15 +3164,26 @@ enum class events
 	events_size
 };
 
+enum class event_prority
+{
+	lowest,
+	low,
+	medium,
+	high,
+	highest
+};
+
 class event_handler_manager
 {
 public:
-	virtual void add_callback( events event, void* callback ) = 0;
+	virtual void add_callback_normal( events event, void* callback ) = 0;
 	virtual void remove_callback( events event, void* callback ) = 0;
 
 	virtual void trigger_on_before_attack_orbwalker( game_object_script target, bool* process ) = 0;
 	virtual void trigger_on_after_attack_orbwalker( game_object_script target ) = 0;
 	virtual void trigger_on_unkillable_minion( game_object_script minion ) = 0;
+
+	virtual void add_callback( events event, void* callback, event_prority prority ) = 0;
 };
 
 class health_prediction_manager
@@ -3503,154 +3631,168 @@ struct event_handler
 template < >
 struct event_handler<events::on_update>
 {
-	static void add_callback( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_update, ( void* ) callback ); }
+	static void add_callback( void( *callback )( ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_update, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_update, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_render_mouse_overs>
 {
-	static void add_callback( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_render_mouse_overs, ( void* ) callback ); }
+	static void add_callback( void( *callback )( ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_render_mouse_overs, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_render_mouse_overs, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_preupdate>
 {
-	static void add_callback( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_preupdate, ( void* ) callback ); }
+	static void add_callback( void( *callback )( ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_preupdate, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_preupdate, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_reconnect>
 {
-	static void add_callback( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_reconnect, ( void* ) callback ); }
+	static void add_callback( void( *callback )( ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_reconnect, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_reconnect, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_draw>
 {
-	static void add_callback( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_draw, ( void* ) callback ); }
+	static void add_callback( void( *callback )( ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_draw, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_draw, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_prereset>
+{
+	static void add_callback( void( *callback )( ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_prereset, ( void* ) callback, prority ); }
+	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_prereset, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_postreset>
+{
+	static void add_callback( void( *callback )( ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_postreset, ( void* ) callback, prority ); }
+	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_postreset, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_global_event>
 {
-	static void add_callback( void( *callback )( std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_global_event, ( void* ) callback ); }
+	static void add_callback( void( *callback )( std::uint32_t hash_name, const char* name, global_event_params_script params ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_global_event, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( std::uint32_t hash_name, const char* name, global_event_params_script params ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_global_event, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_network_packet>
 {
-	static void add_callback( void( *callback )( game_object_script sender, std::uint32_t network_id, pkttype_e type, void* args ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_network_packet, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, std::uint32_t network_id, pkttype_e type, void* args ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_network_packet, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, std::uint32_t network_id, pkttype_e type, void* args ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_network_packet, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_issue_order>
 {
-	static void add_callback( void( *callback )( game_object_script& target, vector& pos, _issue_order_type& type, bool* process ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_issue_order, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script& target, vector& pos, _issue_order_type& type, bool* process ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_issue_order, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script& target, vector& pos, _issue_order_type& type, bool* process ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_issue_order, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_process_spell_cast>
 {
-	static void add_callback( void( *callback )( game_object_script sender, spell_instance_script spell ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_process_spell_cast, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, spell_instance_script spell ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_process_spell_cast, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, spell_instance_script spell ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_process_spell_cast, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_do_cast>
 {
-	static void add_callback( void( *callback )( game_object_script sender, spell_instance_script spell ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_do_cast, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, spell_instance_script spell ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_do_cast, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, spell_instance_script spell ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_do_cast, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_stop_cast>
 {
-	static void add_callback( void( *callback )( game_object_script sender, spell_instance_script spell ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_stop_cast, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, spell_instance_script spell ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_stop_cast, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, spell_instance_script spell ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_stop_cast, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_create_object>
 {
-	static void add_callback( void( *callback )( game_object_script sender ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_create_object, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_create_object, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_create_object, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_delete_object>
 {
-	static void add_callback( void( *callback )( game_object_script sender ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_delete_object, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_delete_object, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_delete_object, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_object_dead>
 {
-	static void add_callback( void( *callback )( game_object_script sender ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_object_dead, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_object_dead, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_object_dead, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_object_respawn>
 {
-	static void add_callback( void( *callback )( game_object_script sender ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_object_respawn, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_object_respawn, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_object_respawn, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_teleport>
 {
-	static void add_callback( void( *callback )( game_object_script sender, teleport_type type, teleport_status status, float duration ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_teleport, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, teleport_type type, teleport_status status, float duration ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_teleport, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, teleport_type type, teleport_status status, float duration ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_teleport, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_cast_spell>
 {
-	static void add_callback( void( *callback )( spellslot spell_slot, game_object_script target, vector& pos, vector& pos2, bool is_charge, bool* process ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_cast_spell, ( void* ) callback ); }
+	static void add_callback( void( *callback )( spellslot spell_slot, game_object_script target, vector& pos, vector& pos2, bool is_charge, bool* process ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_cast_spell, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( spellslot spell_slot, game_object_script target, vector& pos, vector& pos2, bool is_charge, bool* process ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_cast_spell, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_buff_gain>
 {
-	static void add_callback( void( *callback )( game_object_script sender, buff_instance_script buff ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_buff_gain, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, buff_instance_script buff ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_buff_gain, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, buff_instance_script buff ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_buff_gain, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_buff_lose>
 {
-	static void add_callback( void( *callback )( game_object_script sender, buff_instance_script buff ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_buff_lose, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, buff_instance_script buff ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_buff_lose, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, buff_instance_script buff ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_buff_lose, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_new_path>
 {
-	static void add_callback( void( *callback )( game_object_script sender, const std::vector<vector>& path, bool is_dash, float dash_speed ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_new_path, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, const std::vector<vector>& path, bool is_dash, float dash_speed ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_new_path, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, const std::vector<vector>& path, bool is_dash, float dash_speed ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_new_path, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_play_animation>
 {
-	static void add_callback( void( *callback )( game_object_script sender, const char* name ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_play_animation, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, const char* name ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_play_animation, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, const char* name ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_play_animation, ( void* ) callback ); }
 };
 
 template < >
 struct event_handler<events::on_after_attack_orbwalker>
 {
-	static void add_callback( void( *callback )( game_object_script target ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_after_attack_orbwalker, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script target ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_after_attack_orbwalker, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script target ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_after_attack_orbwalker, ( void* ) callback ); }
 	static void invoke( game_object_script target ) { plugin_sdk->get_event_handler_manager( )->trigger_on_after_attack_orbwalker( target ); }
 };
@@ -3658,7 +3800,7 @@ struct event_handler<events::on_after_attack_orbwalker>
 template < >
 struct event_handler<events::on_unkillable_minion>
 {
-	static void add_callback( void( *callback )( game_object_script minion ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_unkillable_minion, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script minion ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_unkillable_minion, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script minion ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_unkillable_minion, ( void* ) callback ); }
 	static void invoke( game_object_script minion ) { plugin_sdk->get_event_handler_manager( )->trigger_on_unkillable_minion( minion ); }
 };
@@ -3666,7 +3808,7 @@ struct event_handler<events::on_unkillable_minion>
 template < >
 struct event_handler<events::on_before_attack_orbwalker>
 {
-	static void add_callback( void( *callback )( game_object_script target, bool* process ) ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_before_attack_orbwalker, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script target, bool* process ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_before_attack_orbwalker, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script target, bool* process ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_before_attack_orbwalker, ( void* ) callback ); }
 	static void invoke( game_object_script target, bool* process ) { plugin_sdk->get_event_handler_manager( )->trigger_on_before_attack_orbwalker( target, process ); }
 };
