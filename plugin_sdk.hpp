@@ -2986,6 +2986,14 @@ public:
 	//
 	virtual void reserved_0( );
 	virtual void reserved_1( );
+	
+	void set_prority_list( const std::vector<ProrityCheckItem>& items )
+	{
+		if ( this->element_type( ) != TreeEntryType::ProrityList )
+			return;
+
+		this->set_combo( *( const std::vector<std::pair<std::string, void*>>* )( &items ), false );
+	}
 };
 
 class TreeTab: public TreeEntry
