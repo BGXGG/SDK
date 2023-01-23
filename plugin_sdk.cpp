@@ -1904,7 +1904,8 @@ script_spell::script_spell( spellslot slot, float range, skillshot_type type, fl
 	this->speed = speed;
 	this->radius = radius;
 	this->collision = collision;
-	this->from = vector( );
+	this->from = vector::zero;
+	this->range_check_from = vector::zero;
 }
 
 float script_spell::get_damage( game_object_script target, int stage )
@@ -1984,12 +1985,18 @@ spell_data_inst_script script_spell::handle( )
 
 std::string script_spell::name( )
 {
-	return myhero->get_spell( this->slot )->get_name( );
+	if ( auto handle = this->handle( ) )
+		return handle->get_name( );
+
+	return {};
 }
 
 uint32_t script_spell::name_hash( )
 {
-	return myhero->get_spell( this->slot )->get_name_hash( );
+	if ( auto handle = this->handle( ) )
+		return handle->get_name_hash( );
+
+	return 0;
 }
 
 float script_spell::range( )
@@ -2038,17 +2045,26 @@ bool script_spell::cast( )
 
 int script_spell::level( )
 {
-	return myhero->get_spell( this->slot )->level( );
+	if ( auto handle = this->handle( ) )
+		return handle->level( );
+
+	return 0;
 }
 
 int script_spell::ammo( )
 {
-	return myhero->get_spell( this->slot )->ammo( );
+	if ( auto handle = this->handle( ) )
+		return handle->ammo( );
+
+	return 0;
 }
 
 float script_spell::cooldown_time( )
 {
-	return myhero->get_spell( this->slot )->cooldown( );
+	if ( auto handle = this->handle( ) )
+		return handle->cooldown( );
+
+	return 0.f;
 }
 
 void script_spell::set_spell_lock( bool value )
@@ -2267,9 +2283,7 @@ float script_spell::get_radius( )
 bool script_spell::can_cast( game_object_script unit )
 {
 	if ( unit != nullptr && unit->is_valid_target( this->range( ) ) )
-	{
 		return this->is_ready( );
-	}
 
 	return false;
 }
@@ -2277,22 +2291,18 @@ bool script_spell::can_cast( game_object_script unit )
 bool script_spell::is_in_range( game_object_script target, float range )
 {
 	if ( target == nullptr || !target->is_valid( ) )
-	{
 		return false;
-	}
 
-	if ( target->is_ai_hero( ) )
-		return this->is_in_range( target->get_path_controller( )->get_position_on_path( ), range );
-
-	return this->is_in_range( target->get_position( ), range );
+	return target->is_ai_hero( ) 
+		? this->is_in_range( target->get_path_controller( )->get_position_on_path( ), range ) 
+		: this->is_in_range( target->get_position( ), range );
 }
 
 bool script_spell::is_in_range( vector const& point, float range )
 {
-	auto source = from;
-
-	if ( !source.is_valid( ) )
-		source = myhero->get_path_controller( )->get_position_on_path( );
+	auto source = this->range_check_from.is_valid( ) 
+		? this->range_check_from 
+		: ( this->from.is_valid( ) ? this->from : myhero->get_path_controller( )->get_position_on_path( ) );
 
 	auto r = this->range( );
 	auto range_sqr = r * r;
@@ -2340,35 +2350,13 @@ bool script_spell::cast( game_object_script unit, hit_chance minimum, bool aoe, 
 	if ( is_spell_locked( ) )
 		return false;
 
-	vector cast_position;
-
-	prediction_input x;
-
-	if ( !this->from.is_valid( ) )
-		x._from = myhero->get_position( );
-	else
-		x._from = this->from;
-
-	x.unit = unit;
-	x.delay = this->delay;
-	x.radius = this->radius;
-	x.speed = this->speed;
-	x.collision_objects = this->collision_flags;
-	x.range = this->range( );
-	x.type = this->type;
-	x.aoe = aoe;
-	x.spell_slot = this->slot;
-	x.use_bounding_radius = this->type != skillshot_type::skillshot_circle;
-
-	auto output = prediction->get_prediction( &x );
+	auto output = this->get_prediction( unit );
 
 	if ( output.hitchance >= minimum && output.aoe_targets_hit_count( ) >= min_targets )
 	{
-		cast_position = output.get_cast_position( );
-
 		if ( !this->is_charged_spell )
 		{
-			myhero->cast_spell( this->slot, cast_position );
+			myhero->cast_spell( this->slot, output.get_cast_position( ) );
 
 			last_cast_spell = gametime->get_time( );
 			return true;
@@ -2376,7 +2364,7 @@ bool script_spell::cast( game_object_script unit, hit_chance minimum, bool aoe, 
 
 		if ( is_charging( ) && gametime->get_time( ) - charging_started_time > 0.f )
 		{
-			myhero->update_charged_spell( this->slot, cast_position, true );
+			myhero->update_charged_spell( this->slot, output.get_cast_position( ), true );
 
 			last_cast_spell = gametime->get_time( );
 			return true;
@@ -2385,7 +2373,7 @@ bool script_spell::cast( game_object_script unit, hit_chance minimum, bool aoe, 
 	return false;
 }
 
-bool script_spell::cast( vector position )
+bool script_spell::cast( const vector& position )
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
@@ -2431,7 +2419,7 @@ bool script_spell::cast( game_object_script unit )
 	return false;
 }
 
-bool script_spell::cast( vector startPosition, vector endPosition )
+bool script_spell::cast( const vector& startPosition, const vector& endPosition )
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
@@ -2504,7 +2492,7 @@ bool script_spell::start_charging( const vector& position )
 	return this->is_charging( );
 }
 
-bool script_spell::fast_cast( vector position )
+bool script_spell::fast_cast( const vector& position )
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
@@ -2528,9 +2516,14 @@ std::vector<collisionable_objects> script_spell::get_collision_flags( )
 	return collision_flags;
 }
 
-vector script_spell::range_check_from( )
+vector script_spell::get_range_check_from()
 {
-	return from;
+	return this->range_check_from;
+}
+
+vector script_spell::get_from()
+{
+	return this->from;
 }
 
 void script_spell::set_radius( float radius )
@@ -2542,24 +2535,34 @@ void script_spell::set_speed( float speed )
 {
 	this->speed = speed;
 }
+
 void script_spell::set_delay( float delay )
 {
 	this->delay = delay;
 }
+
 void script_spell::set_range( float range )
 {
 	this->_range = range;
 }
-void script_spell::set_sollision_flags( std::vector <collisionable_objects> flags )
+
+void script_spell::set_sollision_flags( const std::vector <collisionable_objects>& flags )
 {
 	this->collision_flags = flags;
 	this->collision = flags.size( ) != 0;
 }
-void script_spell::set_range_check_from( vector const& position )
+
+void script_spell::set_from(vector const& position)
 {
 	this->from = position;
 }
-void script_spell::set_skillshot( float delay, float radius, float speed, std::vector < collisionable_objects> flags, skillshot_type skillshot_type )
+
+void script_spell::set_range_check_from( vector const& position )
+{
+	this->range_check_from = position;
+}
+
+void script_spell::set_skillshot( float delay, float radius, float speed, const std::vector <collisionable_objects>& flags, skillshot_type skillshot_type )
 {
 	this->type = skillshot_type;
 	this->delay = delay;
@@ -2569,10 +2572,9 @@ void script_spell::set_skillshot( float delay, float radius, float speed, std::v
 	this->collision = flags.size( ) != 0;
 
 	if ( this->slot >= spellslot::q && this->slot <= spellslot::r )
-	{
 		is_spell_lock_enable = true;
-	}
 }
+
 void script_spell::set_charged( float range_min, float range_max, float charge_duration )
 {
 	this->charged_min_range = range_min;
@@ -2582,7 +2584,7 @@ void script_spell::set_charged( float range_min, float range_max, float charge_d
 	this->is_charged_spell = true;
 }
 
-prediction_output script_spell::get_prediction( game_object_script target, vector origin, vector range_check_from )
+prediction_output script_spell::get_prediction( game_object_script target, const vector& origin, const vector& range_check_from )
 {
 	prediction_input x;
 	x._from = origin;
@@ -2616,15 +2618,12 @@ std::vector<game_object_script> script_spell::get_collision( const vector& from,
 	return prediction->get_collision( to_pos, &x );
 }
 
-prediction_output script_spell::get_prediction( game_object_script target, bool aoe, float overrideRange, std::vector<collisionable_objects> collisionable )
+prediction_output script_spell::get_prediction( game_object_script target, bool aoe, float overrideRange, const std::vector<collisionable_objects>& collisionable )
 {
 	prediction_input x;
 
-	if ( !this->from.is_valid( ) )
-		x._from = myhero->get_position( );
-	else
-		x._from = this->from;
-
+	x._from = this->from.is_valid() ? this->from : myhero->get_position();
+	x._range_check_from = this->range_check_from.is_valid() ? this->range_check_from : x._from;
 	x.unit = target;
 	x.delay = this->delay;
 	x.radius = this->radius;
@@ -2643,11 +2642,8 @@ prediction_output script_spell::get_prediction_no_collision( game_object_script 
 {
 	prediction_input x;
 
-	if ( !this->from.is_valid( ) )
-		x._from = myhero->get_position( );
-	else
-		x._from = this->from;
-
+	x._from = this->from.is_valid() ? this->from : myhero->get_position();
+	x._range_check_from = this->range_check_from.is_valid() ? this->range_check_from : x._from;
 	x.unit = target;
 	x.delay = this->delay;
 	x.radius = this->radius;
