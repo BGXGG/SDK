@@ -2986,7 +2986,7 @@ public:
 	//
 	virtual void reserved_0( );
 	virtual void reserved_1( );
-	
+
 	void set_prority_list( const std::vector<ProrityCheckItem>& items )
 	{
 		if ( this->element_type( ) != TreeEntryType::ProrityList )
@@ -3438,6 +3438,7 @@ public:
 	spellslot slot = spellslot::invalid;
 
 	vector from{};
+	vector range_check_from{};
 	skillshot_type type{};
 	std::vector<collisionable_objects> collision_flags{};
 	damage_type _damage_type{};
@@ -3469,10 +3470,10 @@ public:
 
 	virtual bool cast( );
 	virtual bool cast( game_object_script unit, hit_chance minimum, bool aoe = false, int min_targets = 0 );
-	virtual bool cast( vector position );
+	virtual bool cast( const vector& position );
 	virtual bool cast( game_object_script unit );
-	virtual bool cast( vector start_position, vector end_position );
-	virtual bool fast_cast( vector position );
+	virtual bool cast( const vector& start_position, const vector& end_position );
+	virtual bool fast_cast( const vector& position );
 
 	virtual bool cast_on_best_farm_position( int min_minions = 2, bool is_jugnle_mobs = false );
 
@@ -3485,18 +3486,20 @@ public:
 	virtual float get_damage( game_object_script target, int stage = 0 );
 
 	virtual std::vector<collisionable_objects> get_collision_flags( );
-	virtual vector range_check_from( );
+	virtual vector get_range_check_from( );
+	virtual vector get_from( );
 
 	virtual void set_radius( float radius );
 	virtual void set_speed( float speed );
 	virtual void set_delay( float delay );
 	virtual void set_range( float range );
-	virtual void set_sollision_flags( std::vector <collisionable_objects> flags );
-	virtual void set_range_check_from( vector const& position );
-	virtual void set_skillshot( float delay, float radius, float speed, std::vector<collisionable_objects> flags, skillshot_type skillshot_type );
+	virtual void set_sollision_flags( const std::vector <collisionable_objects>& flags );
+	virtual void set_from( const vector& position );
+	virtual void set_range_check_from( const vector& position );
+	virtual void set_skillshot( float delay, float radius, float speed, const std::vector<collisionable_objects>& flags, skillshot_type skillshot_type );
 	virtual void set_charged( float range_min, float range_max, float charge_duration );
 
-	virtual prediction_output get_prediction( game_object_script target, bool aoe = false, float overrideRange = -1, std::vector<collisionable_objects> collisionable = {} );
+	virtual prediction_output get_prediction( game_object_script target, bool aoe = false, float overrideRange = -1, const std::vector<collisionable_objects>& collisionable = {} );
 	virtual prediction_output get_prediction_no_collision( game_object_script target, bool aoe = false, float overrideRange = -1 );
 
 	virtual float get_last_cast_spell_time( );
@@ -3514,14 +3517,14 @@ public:
 	virtual bool can_cast( game_object_script unit );
 
 	virtual bool is_in_range( game_object_script target, float range = -1 );
-	virtual bool is_in_range( vector const& point, float range = -1 );
+	virtual bool is_in_range( const vector& point, float range = -1 );
 
 	void set_charge_buff_name( std::uint32_t name ) { this->charge_buff_name = name; }
 	void set_spell_lock( bool value );
 	bool is_spell_locked( );
 	int8_t icon_index( );
 	game_object_script get_target( float extra_range = 0 );
-	prediction_output get_prediction( game_object_script target, vector origin, vector range_check_from );
+	prediction_output get_prediction( game_object_script target, const vector& origin, const vector& range_check_from );
 	std::vector<game_object_script> get_collision( const vector& from, const std::vector<vector>& to_pos, float speedOverride = -1, float delayOverride = -1, float radiusOverride = -1 );
 
 private:
