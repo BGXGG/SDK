@@ -258,6 +258,7 @@ class buff_instance;
 class spell_data;
 class spell_data_inst;
 class item;
+class item_data;
 class spell_instance;
 class object_type;
 class character_data;
@@ -268,6 +269,7 @@ using game_object_script = std::shared_ptr<game_object>;
 using path_controller_script = std::shared_ptr<path_controller>;
 using buff_instance_script = std::shared_ptr<buff_instance>;
 using spell_data_script = std::shared_ptr<spell_data>;
+using item_data_script = std::shared_ptr<item_data>;
 using spell_data_inst_script = std::shared_ptr<spell_data_inst>;
 using item_script = std::shared_ptr<item>;
 using spell_instance_script = std::shared_ptr<spell_instance>;
@@ -279,6 +281,7 @@ using game_object_script = game_object*;
 using path_controller_script = path_controller*;
 using buff_instance_script = buff_instance*;
 using spell_data_script = spell_data*;
+using item_data_script = item_data*;
 using spell_data_inst_script = spell_data_inst*;
 using item_script = item*;
 using spell_instance_script = spell_instance*;
@@ -1258,6 +1261,19 @@ public:
 	virtual game_object_script get_caster( ) = 0;
 	virtual const char* get_name_cstr( ) = 0;
 	virtual std::uint32_t* get_texture( ) = 0;
+};
+
+class item_data
+{
+public:
+	virtual std::int32_t get_item_id( ) = 0;
+
+	/*
+	Usage:
+		auto texture_info = item->get_texture( );
+		draw_manager->add_image( texture_info.first, { 10,10 }, { 50,50 }, 0.f, { texture_info.second.x,texture_info.second.y }, { texture_info.second.z, texture_info.second.w } );
+	*/
+	virtual std::pair<std::uint32_t*, vector4> get_texture( std::uint32_t index = 0 ) = 0;
 };
 
 class item
@@ -3169,6 +3185,7 @@ enum class events
 	on_global_event,
 	on_render_mouse_overs,
 	on_unkillable_minion,
+	on_env_draw,
 	events_size
 };
 
@@ -3589,6 +3606,7 @@ class game_database
 {
 public:
 	virtual spell_data_script get_spell_by_hash( std::uint32_t hash ) = 0;
+	virtual item_data_script get_item_by_id( ItemId id ) = 0;
 };
 
 class evade_manager;
@@ -3672,6 +3690,13 @@ struct event_handler<events::on_draw>
 {
 	static void add_callback( void( *callback )( ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_draw, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_draw, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_env_draw>
+{
+	static void add_callback( void( *callback )( ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_env_draw, ( void* ) callback, prority ); }
+	static void remove_handler( void( *callback )( ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_env_draw, ( void* ) callback ); }
 };
 
 template < >
