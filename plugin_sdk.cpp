@@ -3058,3 +3058,25 @@ namespace mec
 	}
 
 };
+
+TreeTextureDescriptor* create_color_texture_descriptor( std::uint32_t color1, std::uint32_t color2 )
+{
+	auto descriptor = new TreeTextureDescriptor( );
+
+	descriptor->color1 = color1;
+	descriptor->color2 = color2;
+
+	return descriptor;
+}
+
+TreeTextureDescriptor* create_texture_descriptor( void* texture_id, const ImVec4& uv, float rounding, std::uint32_t color )
+{
+	auto descriptor = new TreeTextureDescriptor( );
+
+	descriptor->texture_id = texture_id;
+	descriptor->uv = uv;
+	descriptor->rounding = rounding;
+	descriptor->texture_color = color;
+
+	return descriptor;
+}
