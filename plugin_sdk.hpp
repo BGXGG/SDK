@@ -378,6 +378,26 @@ public:
 	vector4( float x, float y, float z, float w ): x( x ), y( y ), z( z ), w( w ) { }
 };
 
+struct ImVec2
+{
+	float                                   x, y;
+	ImVec2( )
+	{
+		x = y = 0.0f;
+	}
+	ImVec2( float _x, float _y )
+	{
+		x = _x; y = _y;
+	}
+};
+
+struct ImVec4
+{
+	float     x, y, z, w;
+	ImVec4( ) { x = y = z = w = 0.0f; }
+	ImVec4( float _x, float _y, float _z, float _w ) { x = _x; y = _y; z = _z; w = _w; }
+};
+
 class vector
 {
 public:
@@ -2810,6 +2830,27 @@ struct ProrityCheckItem
 class TreeEntry;
 typedef void( __cdecl* PropertyChangeCallback )( TreeEntry* );
 
+
+#define TREE_TEXTURE_DESCRIPTOR_MAGIC 0xB5101234
+typedef void( __cdecl* TextureDrawCallback )( TreeEntry*, const ImVec2&, const ImVec2& );
+struct TreeTextureDescriptor
+{
+	std::uint32_t magic = TREE_TEXTURE_DESCRIPTOR_MAGIC;
+
+	std::uint32_t color1 = 0;
+	std::uint32_t color2 = 0;
+
+	TextureDrawCallback custom_draw_callback = nullptr;
+
+	float rounding = 0.f;
+	std::uint32_t texture_color = 0xFFFFFFFF;
+	ImVec4 uv = ImVec4( 0.f, 0.f, 1.f, 1.f );
+	void* texture_id = nullptr;
+};
+
+TreeTextureDescriptor* create_color_texture_descriptor( std::uint32_t color1, std::uint32_t color2 );
+TreeTextureDescriptor* create_texture_descriptor( void* texture_id, const ImVec4& uv = ImVec4( 0.f, 0.f, 1.f, 1.f ), float rounding = 0.f, std::uint32_t color = 0xFFFFFFFF );
+
 class TreeEntry
 {
 public:
@@ -3130,6 +3171,23 @@ public:
 	// Reserved for core
 	//
 	virtual void reserved_3( );
+
+	TreeTab* get_tab( const std::string& key )
+	{
+		if ( auto element = get_entry( key ) )
+		{
+			if ( element->element_type( ) == TreeEntryType::TreeTab || element->element_type( ) == TreeEntryType::MainTreeTab )
+				return reinterpret_cast< TreeTab* >( element );
+		}
+
+		return nullptr;
+	}
+
+	// Creates or gets (if already exists and type is TreeImage) menu element
+	//
+	// See TreeImage element to get more information
+	//
+	virtual TreeEntry* add_image_item( const std::string& key, void* texture, const std::int32_t& height, const std::int32_t& original_height, const std::int32_t& original_width, bool extend_image = false );
 };
 
 class tree_menu
@@ -3363,13 +3421,6 @@ class global_event_params
 {
 public:
 	virtual std::int32_t get_argument( std::int32_t index ) = 0;
-};
-
-struct ImVec4
-{
-	float     x, y, z, w;
-	ImVec4( ) { x = y = z = w = 0.0f; }
-	ImVec4( float _x, float _y, float _z, float _w ) { x = _x; y = _y; z = _z; w = _w; }
 };
 
 struct loaded_texture
