@@ -3187,7 +3187,7 @@ public:
 	//
 	// See TreeImage element to get more information
 	//
-	virtual TreeEntry* add_image_item( const std::string& key, void* texture, const std::int32_t& height, const std::int32_t& original_height, const std::int32_t& original_width, bool extend_image = false );
+	virtual TreeEntry* add_image_item2( const std::string& key, void* texture, const std::int32_t& height, const std::int32_t& original_height, const std::int32_t& original_width, bool extend_image = false );
 };
 
 class tree_menu
