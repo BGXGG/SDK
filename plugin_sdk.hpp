@@ -880,7 +880,7 @@ enum class champion_id
 	Annie = 1,
 	Aphelios = 523,
 	Ashe = 22,
-	AurelionSol = 136,
+	AurelionSol = 2466,
 	Azir = 268,
 	Bard = 432,
 	Blitzcrank = 53,
