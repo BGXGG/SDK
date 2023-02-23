@@ -2232,6 +2232,8 @@ public:
 	virtual bool has_time_remaining_for_animation( std::uint32_t anim_hash, float time ) = 0;
 
 	virtual bool add_floating_line( float_text_type_enum text_type, const char* format, ... ) = 0;
+	
+	virtual float get_pathfindingCollisionRadius( ) = 0;
 
 	bool is_valid( bool force = false );
 
