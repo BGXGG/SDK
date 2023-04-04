@@ -880,7 +880,7 @@ enum class champion_id
 	Annie = 1,
 	Aphelios = 523,
 	Ashe = 22,
-	AurelionSol = 2466,
+	AurelionSol = 136,
 	Azir = 268,
 	Bard = 432,
 	Blitzcrank = 53,
@@ -1502,6 +1502,18 @@ enum class float_text_type_enum: std::int32_t
 	ShieldBonusDamage
 };
 
+struct joint_info
+{
+	bool valid = false;
+	std::int16_t id;
+	std::int16_t flags;
+	std::uint32_t name_hash;
+	const char* name;
+	float radius;
+	std::int16_t parent_id;
+	vector position;
+};
+
 class game_object
 {
 public:
@@ -1540,7 +1552,7 @@ public:
 	//
 	virtual std::string get_name( ) = 0;
 
-	virtual uint32_t get_base( ) = 0;
+	virtual std::uintptr_t get_base( ) = 0;
 
 	//Returns the object team. 
 	//
@@ -1560,7 +1572,7 @@ public:
 	//
 	virtual uint16_t get_id( ) = 0;
 	virtual uint32_t get_handle( ) = 0;
-	virtual uint32_t get_object_owner( ) = 0;
+	virtual std::uintptr_t get_object_owner( ) = 0;
 
 	//Returns the owner of the object otherwise nullptr. Calling this function on Tibbers will return Annie (the owner of Tibbers)
 	// - Please remember owner is not yet set to an object in on_create event.
@@ -2233,10 +2245,29 @@ public:
 	virtual bool has_time_remaining_for_animation( std::uint32_t anim_hash, float time ) = 0;
 
 	virtual bool add_floating_line( float_text_type_enum text_type, const char* format, ... ) = 0;
-	
+
 	virtual float get_pathfindingCollisionRadius( ) = 0;
-	
+
 	virtual bool use_object( game_object_script object ) = 0;
+
+	virtual void undo_item( ) = 0;
+	virtual void sell_item( spellslot itemslot ) = 0;
+
+	virtual float get_respawn_time( ) = 0;
+	virtual float get_respawn_time_remaining( ) = 0;
+
+	virtual const char* get_summoner_rank( ) = 0;
+	virtual const char* get_summoner_rank_division( ) = 0;
+
+	virtual std::uint32_t get_bones_length( ) = 0;
+	virtual std::vector<joint_info> get_bones_info( ) = 0;
+	virtual joint_info get_bone_info_by_id( std::uint32_t index ) = 0;
+
+	//std::uint32_t name_hash = ELF IGNORECASE, use spell_hash function
+	//
+	virtual joint_info get_bone_info_by_name_hash( std::uint32_t name_hash ) = 0;
+
+	virtual bool set_no_render( bool value ) = 0;
 
 	bool is_valid( bool force = false );
 
@@ -3193,7 +3224,7 @@ public:
 	// See TreeImage element to get more information
 	//
 	virtual TreeEntry* add_image_item2( const std::string& key, void* texture, const std::int32_t& height, const std::int32_t& original_height, const std::int32_t& original_width, bool extend_image = false );
-	
+
 	virtual bool& adjust_height_when_overlap( ) = 0;
 };
 
@@ -3437,6 +3468,20 @@ struct loaded_texture
 	std::uint32_t height;
 };
 
+struct glow_data
+{
+	float inside_glow_size, inside_glow_power, outside_glow_size, outside_glow_power;
+
+	glow_data( ): inside_glow_size( 0 ), inside_glow_power( 0 ), outside_glow_size( 0 ), outside_glow_power( 0 )
+	{
+	}
+
+	glow_data( float inside_glow_sz, float inside_glow_pw, float outside_glow_sz, float outside_glow_pw )
+		: inside_glow_size( inside_glow_sz ), inside_glow_power( inside_glow_pw ), outside_glow_size( outside_glow_sz ), outside_glow_power( outside_glow_pw )
+	{
+	}
+};
+
 class drawning_manager
 {
 public:
@@ -3453,6 +3498,10 @@ public:
 	virtual loaded_texture* load_texture_from_file( const std::wstring& path ) = 0;
 	virtual void add_filled_circle_on_screen( vector const& center, float radius, unsigned long color, int num_segments = 30 ) = 0;
 	virtual void add_filled_circle( vector const& center, float radius, unsigned long color, float height = -1.f, int num_segments = 30 ) = 0;
+	virtual void add_rectangle_3d( const vector& start, const vector& end, unsigned int color, float rectangle_width, float outline_width, float rounding, float glow_power ) = 0;
+	virtual void add_rectangle_3d_filled( const vector& start, const vector& end, unsigned int color, float rectangle_width, float rounding ) = 0;
+	virtual void add_circle_with_glow( const vector& center, unsigned int color, float radius, float line_width, const glow_data& glow ) = 0;
+	virtual void add_circle_navmesh( const vector& center, unsigned int color, float radius, float line_width, int vertex_count = 200 ) = 0;
 	void draw_circle_on_minimap( vector const& center, float radius, unsigned long color, float thickness = 1.f, int quality = 40 );
 };
 
