@@ -799,33 +799,6 @@ enum class ItemId: uint32_t
 	Abyssal_Mask = 8020
 };
 
-enum class action_state
-{
-	CanAttack = 1,
-	CanCast = 2,
-	CanMove = 4,
-	Immovable = 8,
-	Unknown = 16,
-	IsStealth = 32,
-	Taunted = 64,
-	Feared = 128,
-	Fleeing = 256,
-	Surpressed = 512,
-	Asleep = 1024,
-	NearSight = 2048,
-	Ghosted = 4096,
-	HasGhost = 8192,
-	Charmed = 16384,
-	NoRender = 32768,
-	DodgePiercing = 131072,
-	DisableAmbientGold = 262144,
-	DisableAmbientXP = 524288,
-	ForceRenderParticles = 65536,
-	IsCombatEnchanced = 1048576,
-	IsSelectable = 16777216
-};
-DEFINE_ENUM_FLAG_OPERATORS( action_state );
-
 enum class buff_type: unsigned char
 {
 	Internal = 0,
@@ -1566,7 +1539,7 @@ public:
 	//
 	virtual spell_data_script get_auto_attack( ) = 0;
 
-	virtual action_state get_action_state( ) = 0;
+	virtual std::uint32_t get_action_state( ) = 0;
 
 	//Returns the Id of the object in the EntityList.
 	//
@@ -2269,6 +2242,14 @@ public:
 
 	virtual bool set_no_render( bool value ) = 0;
 
+	virtual bool get_no_render( ) = 0;
+
+	virtual std::uint32_t get_action_state2( ) = 0;
+
+	virtual bool get_is_obscured( ) = 0;
+	virtual bool get_is_unstoppable( ) = 0;
+	virtual bool get_is_cc_immune( ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
@@ -2340,10 +2321,17 @@ public:
 	virtual void set_next_charge_update( float time ) = 0;
 };
 
+enum class hud_cursor_type: std::int32_t
+{
+	move_to,
+	move_to_red
+};
+
 class hud_input_logic
 {
 public:
 	virtual vector get_game_cursor_position( ) = 0;
+	virtual void fake_click( const vector& position, hud_cursor_type type ) = 0;
 };
 
 class hud_manager
@@ -2548,6 +2536,29 @@ class locale_manager
 public:
 	virtual std::string get_language( ) = 0;
 	virtual std::string translate( std::string name ) = 0;
+};
+
+struct effect_create_data_client
+{
+	const char* effect_file_name;
+	std::uint32_t resources_hash;
+	game_object_script emitter_object;
+	game_object_script object_attachment;
+	game_object_script character_attachment;
+	game_object_script second_emitter_object;
+	std::uint32_t flags;
+	std::uint32_t character_join_name_hash;
+	std::uint32_t object_join_name_hash;
+	vector position;
+	vector target_position;
+	vector forward_vector;
+	float global_scale;
+	float play_speed_modifier;
+	std::uint8_t owner_type;
+	std::uint32_t owner_network_id;
+	bool camera_attachment;
+	float lifetime_scale;
+	float fast_forward;
 };
 
 enum game_map_id
@@ -3226,6 +3237,8 @@ public:
 	virtual TreeEntry* add_image_item2( const std::string& key, void* texture, const std::int32_t& height, const std::int32_t& original_height, const std::int32_t& original_width, bool extend_image = false );
 
 	virtual bool& adjust_height_when_overlap( ) = 0;
+
+	virtual const std::vector<std::unique_ptr<TreeEntry>>& get_elements( ) = 0;
 };
 
 class tree_menu
@@ -3282,6 +3295,7 @@ enum class events
 	on_render_mouse_overs,
 	on_unkillable_minion,
 	on_env_draw,
+	on_create_client_effect,
 	events_size
 };
 
@@ -3916,6 +3930,13 @@ struct event_handler<events::on_buff_lose>
 {
 	static void add_callback( void( *callback )( game_object_script sender, buff_instance_script buff ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_buff_lose, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script sender, buff_instance_script buff ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_buff_lose, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_create_client_effect>
+{
+	static void add_callback( void( *callback )( game_object_script effect, const effect_create_data_client& create_data ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_create_client_effect, ( void* ) callback, prority ); }
+	static void remove_handler( void( *callback )( game_object_script effect, const effect_create_data_client& create_data ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_create_client_effect, ( void* ) callback ); }
 };
 
 template < >
