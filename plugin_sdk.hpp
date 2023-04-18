@@ -1356,7 +1356,14 @@ enum class _player_ping_type
 	danger,
 	assist_me,
 	area_is_warded,
-	careful
+	careful,
+	no_vision_here,
+	ask_for_vision,
+	push_forward,
+	all_in,
+	retreat,
+	bait,
+	hold_area
 };
 
 enum class float_hero_stat
@@ -2250,6 +2257,8 @@ public:
 	virtual bool get_is_unstoppable( ) = 0;
 	virtual bool get_is_cc_immune( ) = 0;
 
+	virtual void cast_local_ping( const vector& position, game_object_script target, _player_ping_type ping_type, bool play_sound = true, bool show_message = true ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
@@ -2346,6 +2355,9 @@ class tactical_map
 {
 public:
 	virtual bool to_map_coord( vector& in, vector& out ) = 0;
+	virtual bool is_coord_on_map( const vector& pos ) = 0;
+	virtual const ImVec2& get_position( ) = 0;
+	virtual const vector4& get_size( ) = 0;
 };
 
 class menu_gui
@@ -2353,6 +2365,10 @@ class menu_gui
 public:
 	virtual bool gui_is_open( ) = 0;
 	virtual tactical_map* get_tactical_map( ) = 0;
+	virtual const char* get_last_chat_message( ) = 0;
+	virtual std::size_t get_chat_history_size( ) = 0;
+	virtual std::size_t get_chat_current_message_index( ) = 0;
+	virtual const char* get_chat_message_by_index( std::size_t index, bool realtive = true ) = 0;
 };
 
 class game_ping
@@ -3098,6 +3114,9 @@ public:
 
 		this->set_combo( *( const std::vector<std::pair<std::string, void*>>* )( &items ), false );
 	}
+
+	void set_texture_info( std::int32_t height, std::int32_t original_height = 0, std::int32_t original_width = 0, bool extend_image = false );
+	const std::vector<ProrityCheckItem>& get_prority_sorted_list( );
 };
 
 class TreeTab: public TreeEntry
@@ -3258,6 +3277,8 @@ public:
 	// nullptr - if dosen't exists
 	//
 	virtual TreeTab* get_tab( std::string key ) = 0;
+
+	virtual std::uintptr_t* get_tree_entry_extensions_table( ) = 0;
 };
 
 enum class events
@@ -3515,7 +3536,12 @@ public:
 	virtual void add_rectangle_3d( const vector& start, const vector& end, unsigned int color, float rectangle_width, float outline_width, float rounding, float glow_power ) = 0;
 	virtual void add_rectangle_3d_filled( const vector& start, const vector& end, unsigned int color, float rectangle_width, float rounding ) = 0;
 	virtual void add_circle_with_glow( const vector& center, unsigned int color, float radius, float line_width, const glow_data& glow ) = 0;
-	virtual void add_circle_navmesh( const vector& center, unsigned int color, float radius, float line_width, int vertex_count = 200 ) = 0;
+	virtual void add_path_wireframe_on_screen( const std::vector<vector>& path, unsigned int color, float thickness = 1.0f, bool is_closed = true ) = 0;
+	virtual void add_path_filled_on_screen( const std::vector<vector>& path, unsigned int color ) = 0;
+	virtual void add_circle_on_screen_ex( const vector& center, float radius, unsigned int color, float fill_percent = 1.0f, float thickness = 1.0f, int num_segments = 70 ) = 0;
+	virtual void add_circle_with_glow_gradient( const vector& center, unsigned int color, unsigned int color2, float radius, float line_width, const glow_data& glow ) = 0;
+	virtual void add_circle_gradient( vector const& center, float radius, unsigned int color, unsigned int color2, float thickness = 1.f, float height = -1.f ) = 0;
+	virtual void add_filled_circle_gradient( vector const& center, float radius, unsigned int color, unsigned int color2, float height = -1.f ) = 0;
 	void draw_circle_on_minimap( vector const& center, float radius, unsigned long color, float thickness = 1.f, int quality = 40 );
 };
 
@@ -3949,8 +3975,8 @@ struct event_handler<events::on_new_path>
 template < >
 struct event_handler<events::on_play_animation>
 {
-	static void add_callback( void( *callback )( game_object_script sender, const char* name ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_play_animation, ( void* ) callback, prority ); }
-	static void remove_handler( void( *callback )( game_object_script sender, const char* name ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_play_animation, ( void* ) callback ); }
+	static void add_callback( void( *callback )( game_object_script sender, const char* name, bool* process ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_play_animation, ( void* ) callback, prority ); }
+	static void remove_handler( void( *callback )( game_object_script sender, const char* name, bool* process ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_play_animation, ( void* ) callback ); }
 };
 
 template < >
