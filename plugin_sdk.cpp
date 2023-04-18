@@ -3080,3 +3080,13 @@ TreeTextureDescriptor* create_texture_descriptor( void* texture_id, const ImVec4
 
 	return descriptor;
 }
+
+void TreeEntry::set_texture_info( std::int32_t height, std::int32_t original_height, std::int32_t original_width, bool extend_image )
+{
+	return reinterpret_cast< void( __stdcall* )( TreeEntry*, std::int32_t, std::int32_t, std::int32_t, bool ) >( menu->get_tree_entry_extensions_table( )[ 0 ] )( this, height, original_height, original_width, extend_image );
+}
+
+const std::vector<ProrityCheckItem>& TreeEntry::get_prority_sorted_list( )
+{
+	return reinterpret_cast< const std::vector<ProrityCheckItem>&( __stdcall* )( TreeEntry* ) >( menu->get_tree_entry_extensions_table( )[ 1 ] )( this );
+}
