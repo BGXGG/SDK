@@ -519,7 +519,7 @@ enum class pkttype_e: std::uint16_t
 	PKT_S2C_ForceCreateMissile_s //nullptr
 };
 
-enum class game_object_team
+enum class game_object_team : std::int32_t
 {
 	unknown,
 	order = 100,
@@ -1419,16 +1419,15 @@ enum class emote_type: std::int32_t
 
 enum class summoner_emote_slot: std::uint32_t
 {
-	top = 0,
-	right = 1,
-	bottom = 2,
-	left = 3,
-	middle = 4,
-	start = 5,
-	victory = 6,
-	first_blood = 7,
-	ace = 8,
-	missing = 9,
+	emote_N = 0,
+	emote_NE = 1,
+	emote_E = 2,
+	emote_SE = 3,
+	emote_S = 4,
+	emote_SW = 5,
+	emote_W = 6,
+	emote_NW = 7,
+	middle = 8,
 	none = 0xFFFFFFFF
 };
 
@@ -2577,6 +2576,43 @@ struct effect_create_data_client
 	float fast_forward;
 };
 
+enum class on_play_sound_event_type: std::int32_t
+{
+	Oneshot,
+	Controlled
+};
+
+enum class on_vote_type: std::int32_t
+{
+	surrender,
+	neutral_camp
+};
+
+struct on_play_sound_args
+{
+	const char* sound_name;
+	std::uint32_t sound_hash;
+
+	game_object_script target;
+	game_object_script source;
+
+	vector position;
+
+	on_play_sound_event_type event_type;
+
+	vector target_sound_position;
+	vector source_sound_position;
+};
+
+struct on_vote_args
+{
+	bool success;
+	on_vote_type vote_type;
+
+	game_object_script sender = nullptr; //for surrender
+	std::int32_t neutral_camp_id = -1; //for neutral_camp
+};
+
 enum game_map_id
 {
 	CrystalScar = 8,
@@ -2850,7 +2886,7 @@ public:
 	// Returns attackable unit under your mouse
 	// Can return nullptr if there is no object
 	//
-	virtual std::shared_ptr<game_object> get_hovered_object( ) = 0;
+	virtual game_object_script get_hovered_object( ) = 0;
 };
 
 namespace TreeHotkeyMode
@@ -3317,6 +3353,9 @@ enum class events
 	on_unkillable_minion,
 	on_env_draw,
 	on_create_client_effect,
+	on_evolve,
+	on_play_sound,
+	on_vote,
 	events_size
 };
 
@@ -3722,6 +3761,18 @@ namespace neutral_camp_id
 	};
 };
 
+enum class dragon_type: std::int32_t
+{
+	elder,
+	chemtech,
+	mountain,
+	hextech,
+	infernal,
+	cloud,
+	ocean,
+	unknown
+};
+
 class neutral_camp_manager
 {
 public:
@@ -3731,7 +3782,9 @@ public:
 	virtual std::vector<std::uint32_t> get_camp_minions( std::int32_t camp_id ) = 0;
 	virtual vector get_camp_position( std::int32_t camp_id ) = 0;
 	virtual bool get_camp_alive_status( std::int32_t camp_id ) = 0;
+	virtual const std::vector<std::uint32_t>& get_camp_kills( std::int32_t camp_id, game_object_team team ) = 0;
 };
+dragon_type convert_hash_to_dragon_type( std::uint32_t hash );
 
 class language_info
 {
@@ -4001,6 +4054,34 @@ struct event_handler<events::on_before_attack_orbwalker>
 	static void add_callback( void( *callback )( game_object_script target, bool* process ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_before_attack_orbwalker, ( void* ) callback, prority ); }
 	static void remove_handler( void( *callback )( game_object_script target, bool* process ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_before_attack_orbwalker, ( void* ) callback ); }
 	static void invoke( game_object_script target, bool* process ) { plugin_sdk->get_event_handler_manager( )->trigger_on_before_attack_orbwalker( target, process ); }
+};
+
+template < >
+struct event_handler<events::on_lvlup>
+{
+	static void add_callback( void( *callback )( game_object_script sender, std::int32_t points ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_lvlup, ( void* ) callback, prority ); }
+	static void remove_handler( void( *callback )( game_object_script sender, std::int32_t points ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_lvlup, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_evolve>
+{
+	static void add_callback( void( *callback )( game_object_script sender, std::int32_t points ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_evolve, ( void* ) callback, prority ); }
+	static void remove_handler( void( *callback )( game_object_script sender, std::int32_t points ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_evolve, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_play_sound>
+{
+	static void add_callback( void( *callback )( const on_play_sound_args& args ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_play_sound, ( void* ) callback, prority ); }
+	static void remove_handler( void( *callback )( const on_play_sound_args& args ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_play_sound, ( void* ) callback ); }
+};
+
+template < >
+struct event_handler<events::on_vote>
+{
+	static void add_callback( void( *callback )( const on_vote_args& args ), event_prority prority = event_prority::medium ) { plugin_sdk->get_event_handler_manager( )->add_callback( events::on_vote, ( void* ) callback, prority ); }
+	static void remove_handler( void( *callback )( const on_vote_args& args ) ) { plugin_sdk->get_event_handler_manager( )->remove_callback( events::on_vote, ( void* ) callback ); }
 };
 
 extern game_state* state;
