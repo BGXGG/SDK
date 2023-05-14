@@ -57,7 +57,7 @@ float next_spell_cast_t = 0.f;
 
 void on_cast_spell( spellslot spell_slot, game_object_script target, vector& pos, vector& pos2, bool is_charge, bool* process )
 {
-	if ( spell_slot >= spellslot::q && spell_slot <= spellslot::r && myhero->get_spell_state( spell_slot ) == spell_state::Ready && !is_charge)
+	if ( spell_slot >= spellslot::q && spell_slot <= spellslot::r && myhero->get_spell_state( spell_slot ) == spell_state::Ready && !is_charge )
 	{
 		if ( !target && gametime->get_time( ) < next_spell_cast_t && enabled_spellslots[ spell_slot ] ) *process = false;
 		else next_spell_cast_t = gametime->get_time( ) + ping->get_ping( ) / 1000.f + 0.133f;
@@ -76,7 +76,7 @@ script_spell* plugin_sdk_core::register_spell( spellslot slot, float range )
 
 bool plugin_sdk_core::remove_spell( script_spell* spell )
 {
-	auto const& it = std::find_if( script_spells.begin( ), script_spells.end( ), [&]( std::unique_ptr<script_spell>& x ) { return x.get( ) == spell; } );
+	auto const& it = std::find_if( script_spells.begin( ), script_spells.end( ), [ & ]( std::unique_ptr<script_spell>& x ) { return x.get( ) == spell; } );
 
 	if ( it == script_spells.end( ) )
 		return false;
@@ -1211,7 +1211,7 @@ projection_info( const bool is_on_segment, vector const& segment_point, vector c
 }
 
 intersection_result::
-intersection_result( const bool intersects, vector const& point ) :
+intersection_result( const bool intersects, vector const& point ):
 	intersects( intersects ), point( point )
 {
 }
@@ -1343,7 +1343,7 @@ namespace antigapcloser
 		if ( sender->is_enemy( ) )
 		{
 			auto name = spell->get_spell_data( )->get_name( );
-			auto it = std::find_if( dashes_data.begin( ), dashes_data.end( ), [&name]( const TrackedDashData& x ) { return x.spell_name == name; } );
+			auto it = std::find_if( dashes_data.begin( ), dashes_data.end( ), [ &name ]( const TrackedDashData& x ) { return x.spell_name == name; } );
 
 			if ( it != dashes_data.end( ) )
 			{
@@ -1758,7 +1758,7 @@ namespace antigapcloser
 						break;
 					case champion_id::Belveth:
 						add_dash( "BelvethQ", 400.f, 800.f + hero->get_move_speed( ) ).set_wait_for_new_path( true );
-						break; 
+						break;
 					case champion_id::Nilah:
 						add_dash( "NilahE", 450.f, 2200.f ).set_is_targeted( true );
 						break;
@@ -1885,7 +1885,7 @@ script_spell::script_spell( ): _range( FLT_MAX ), slot( spellslot::invalid )
 
 }
 
-script_spell::script_spell( spellslot slot ) : _range( FLT_MAX )
+script_spell::script_spell( spellslot slot ): _range( FLT_MAX )
 {
 	this->slot = slot;
 }
@@ -2080,7 +2080,7 @@ bool script_spell::is_spell_locked( )
 
 	auto active_spell = myhero->get_active_spell( );
 	return active_spell != nullptr && !active_spell->is_auto_attack( ) && active_spell->is_winding_up( );
-} 
+}
 
 vector script_spell::get_cast_on_best_farm_position( int minMinions, bool is_jugnle_mobs )
 {
@@ -2293,15 +2293,15 @@ bool script_spell::is_in_range( game_object_script target, float range )
 	if ( target == nullptr || !target->is_valid( ) )
 		return false;
 
-	return target->is_ai_hero( ) 
-		? this->is_in_range( target->get_path_controller( )->get_position_on_path( ), range ) 
+	return target->is_ai_hero( )
+		? this->is_in_range( target->get_path_controller( )->get_position_on_path( ), range )
 		: this->is_in_range( target->get_position( ), range );
 }
 
 bool script_spell::is_in_range( vector const& point, float range )
 {
-	auto source = this->range_check_from.is_valid( ) 
-		? this->range_check_from 
+	auto source = this->range_check_from.is_valid( )
+		? this->range_check_from
 		: ( this->from.is_valid( ) ? this->from : myhero->get_path_controller( )->get_position_on_path( ) );
 
 	auto r = this->range( );
@@ -2516,12 +2516,12 @@ std::vector<collisionable_objects> script_spell::get_collision_flags( )
 	return collision_flags;
 }
 
-vector script_spell::get_range_check_from()
+vector script_spell::get_range_check_from( )
 {
 	return this->range_check_from;
 }
 
-vector script_spell::get_from()
+vector script_spell::get_from( )
 {
 	return this->from;
 }
@@ -2552,7 +2552,7 @@ void script_spell::set_sollision_flags( const std::vector <collisionable_objects
 	this->collision = flags.size( ) != 0;
 }
 
-void script_spell::set_from(vector const& position)
+void script_spell::set_from( vector const& position )
 {
 	this->from = position;
 }
@@ -2622,8 +2622,8 @@ prediction_output script_spell::get_prediction( game_object_script target, bool 
 {
 	prediction_input x;
 
-	x._from = this->from.is_valid() ? this->from : myhero->get_position();
-	x._range_check_from = this->range_check_from.is_valid() ? this->range_check_from : x._from;
+	x._from = this->from.is_valid( ) ? this->from : myhero->get_position( );
+	x._range_check_from = this->range_check_from.is_valid( ) ? this->range_check_from : x._from;
 	x.unit = target;
 	x.delay = this->delay;
 	x.radius = this->radius;
@@ -2642,8 +2642,8 @@ prediction_output script_spell::get_prediction_no_collision( game_object_script 
 {
 	prediction_input x;
 
-	x._from = this->from.is_valid() ? this->from : myhero->get_position();
-	x._range_check_from = this->range_check_from.is_valid() ? this->range_check_from : x._from;
+	x._from = this->from.is_valid( ) ? this->from : myhero->get_position( );
+	x._range_check_from = this->range_check_from.is_valid( ) ? this->range_check_from : x._from;
 	x.unit = target;
 	x.delay = this->delay;
 	x.radius = this->radius;
@@ -3089,4 +3089,27 @@ void TreeEntry::set_texture_info( std::int32_t height, std::int32_t original_hei
 const std::vector<ProrityCheckItem>& TreeEntry::get_prority_sorted_list( )
 {
 	return reinterpret_cast< const std::vector<ProrityCheckItem>&( __stdcall* )( TreeEntry* ) >( menu->get_tree_entry_extensions_table( )[ 1 ] )( this );
+}
+
+dragon_type convert_hash_to_dragon_type( std::uint32_t hash )
+{
+	switch ( hash )
+	{
+		case buff_hash( "Elder" ):
+			return dragon_type::elder;
+		case buff_hash( "Chemtech" ):
+			return dragon_type::chemtech;
+		case buff_hash( "Mountain" ):
+			return dragon_type::mountain;
+		case buff_hash( "Hextech" ):
+			return dragon_type::hextech;
+		case buff_hash( "Infernal" ):
+			return dragon_type::infernal;
+		case buff_hash( "Cloud" ):
+			return dragon_type::cloud;
+		case buff_hash( "Ocean" ):
+			return dragon_type::ocean;
+		default:
+			return dragon_type::unknown;
+	}
 }
