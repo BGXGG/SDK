@@ -2258,6 +2258,9 @@ public:
 
 	virtual void cast_local_ping( const vector& position, game_object_script target, _player_ping_type ping_type, bool play_sound = true, bool show_message = true ) = 0;
 
+	virtual void upgrade_spell( spellslot slot ) = 0;
+	virtual void evolve_spell( spellslot slot ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
@@ -3581,6 +3584,7 @@ public:
 	virtual void add_circle_with_glow_gradient( const vector& center, unsigned int color, unsigned int color2, float radius, float line_width, const glow_data& glow ) = 0;
 	virtual void add_circle_gradient( vector const& center, float radius, unsigned int color, unsigned int color2, float thickness = 1.f, float height = -1.f ) = 0;
 	virtual void add_filled_circle_gradient( vector const& center, float radius, unsigned int color, unsigned int color2, float height = -1.f ) = 0;
+	virtual std::pair<bool, bool> overwrite_shader_settings( bool use_depth, bool height_scale ) = 0;
 	void draw_circle_on_minimap( vector const& center, float radius, unsigned long color, float thickness = 1.f, int quality = 40 );
 };
 
