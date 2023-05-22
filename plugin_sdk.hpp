@@ -2326,6 +2326,8 @@ public:
 	virtual bool is_using_d3d9( ) = 0;
 	virtual void* d3d9_device( ) = 0;
 	virtual void* d3d11_device_swap_chain( ) = 0;
+
+	virtual void screen_to_world( const vector& screen, vector& world ) = 0;
 };
 
 class hud_select_logic
@@ -2428,6 +2430,8 @@ public:
 	virtual void get_cell_center( vector& pos, std::int32_t cell_x, std::int32_t cell_y ) = 0;
 	virtual nav_collision_flags get_collision_flag_by_cell( std::int32_t cell_x, std::int32_t cell_y ) = 0;
 	virtual void get_cell_location( const vector& pos, std::int32_t& cell_x, std::int32_t& cell_y ) = 0;
+	virtual void set_collision_flag( nav_collision_flags flags, const vector& pos ) = 0;
+	virtual void set_collision_flag_by_cell( nav_collision_flags flags, std::int32_t cell_x, std::int32_t cell_y ) = 0;
 };
 
 enum class keyboard_game
