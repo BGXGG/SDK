@@ -1280,6 +1280,9 @@ public:
 		draw_manager->add_image( texture_info.first, { 10,10 }, { 50,50 }, 0.f, { texture_info.second.x,texture_info.second.y }, { texture_info.second.z, texture_info.second.w } );
 	*/
 	virtual std::pair<std::uint32_t*, vector4> get_texture( std::uint32_t index = 0 ) = 0;
+	virtual std::vector<std::int32_t> get_recipe_items( ) = 0;
+	virtual std::int32_t get_item_price( ) = 0;
+	virtual std::int32_t get_item_total_price( ) = 0;
 };
 
 class item
@@ -1293,6 +1296,9 @@ public:
 			draw_manager->add_image( texture_info.first, { 10,10 }, { 50,50 }, 0.f, { texture_info.second.x,texture_info.second.y }, { texture_info.second.z, texture_info.second.w } );
 	*/
 	virtual std::pair<std::uint32_t*, vector4> get_texture( std::uint32_t index = 0 ) = 0;
+	virtual std::vector<std::int32_t> get_recipe_items( ) = 0;
+	virtual std::int32_t get_item_price( ) = 0;
+	virtual std::int32_t get_item_total_price( ) = 0;
 };
 
 class path_controller
@@ -2273,6 +2279,8 @@ public:
 	virtual void upgrade_spell( spellslot slot ) = 0;
 	virtual void evolve_spell( spellslot slot ) = 0;
 
+	virtual void set_spell_cooldown_end_time( std::int32_t slot, float cooldown_end_time ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
@@ -2432,6 +2440,9 @@ public:
 	virtual void get_cell_location( const vector& pos, std::int32_t& cell_x, std::int32_t& cell_y ) = 0;
 	virtual void set_collision_flag( nav_collision_flags flags, const vector& pos ) = 0;
 	virtual void set_collision_flag_by_cell( nav_collision_flags flags, std::int32_t cell_x, std::int32_t cell_y ) = 0;
+	virtual vector get_nearest_passable_cell_center( const vector& pos ) = 0;
+
+	bool is_cell_passable( const vector& pos, game_object_team team );
 };
 
 enum class keyboard_game
