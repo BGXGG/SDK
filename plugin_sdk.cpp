@@ -3113,3 +3113,13 @@ dragon_type convert_hash_to_dragon_type( std::uint32_t hash )
 			return dragon_type::unknown;
 	}
 }
+
+bool nav_mesh::is_cell_passable( const vector& pos, game_object_team team )
+{
+	const auto flags = static_cast< std::uint16_t >( this->get_collision_flag( pos ) );
+	const auto special = ( flags & 0xC00 );
+	if ( special != 0 )
+		return ( ( team == game_object_team::order ? 0x400 : ( team == game_object_team::chaos ? 0x800 : 0xC00 ) ) & special ) == special;
+
+	return ( flags & 0x2 ) == 0;
+}
