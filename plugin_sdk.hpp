@@ -1019,6 +1019,7 @@ enum class champion_id
 	Nilah = 895,
 	KSante = 897,
 	Milio = 902,
+	Naafiri = 950,
 	Unknown = 5000,
 	TFTChampion,
 	SG_Skarner,
