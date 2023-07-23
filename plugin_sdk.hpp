@@ -2282,6 +2282,10 @@ public:
 
 	virtual void set_spell_cooldown_end_time( std::int32_t slot, float cooldown_end_time ) = 0;
 
+	virtual bool cherry_get_is_teammate( ) = 0;
+	virtual bool cherry_get_is_opponent( ) = 0;
+	virtual std::int8_t cherry_get_team_id( ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
