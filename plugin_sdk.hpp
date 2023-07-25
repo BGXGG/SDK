@@ -2654,7 +2654,8 @@ enum game_map_id
 	TwistedTreeline = 10,
 	SummonersRift,
 	HowlingAbyss,
-	TFT = 22
+	TFT = 22,
+	CherryArena = 30
 };
 
 class mission_info
