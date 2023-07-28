@@ -158,8 +158,8 @@ champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
 	*
 	* Example: buff_hash("ZeriR");
 	*/
-#define buff_hash(str) (std::integral_constant<std::uint32_t, buff_hash_real(str)>::value)
-
+#define buff_hash(str) (std::integral_constant<std::uint32_t, hash_fnv1a_ignorecase(str)>::value)
+#define buff_hash_real hash_fnv1a_ignorecase
 	/**
 	 * Creates spell name hash for given spell name
 	 *
@@ -171,62 +171,55 @@ champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
 	 *
 	 * Example: spell_hash("ZeriR");
 	 */
-#define spell_hash(str) (std::integral_constant<std::uint32_t, spell_hash_real(str)>::value)
+#define spell_hash(str) (std::integral_constant<std::uint32_t, hash_elf_ignorecase(str)>::value)
+#define spell_hash_real hash_elf_ignorecase
+
+#define character_hash(str) (std::integral_constant<std::uint32_t, hash_sdbm_ignorecase(str)>::value)
 
 #define translation_hash(str) (std::integral_constant<std::uint64_t, translation_hash_64_runtime(str)>::value)
 
-	 /**
-	  * Same as buff_hash but you can use it in runtime
-	  *
-	  * Example: buff_hash_real("ZeriR");
-	  */
-constexpr std::uint32_t const buff_hash_real( const char* str )
+constexpr std::uint8_t char_to_lower( std::uint8_t input )
 {
-	std::uint32_t hash = 0x811C9DC5;
-	std::uint32_t len = 0;
+	if ( static_cast< std::uint8_t >( input - 0x41 ) > 0x19u )
+		return input;
 
-	while ( str[ len ] != '\0' )
-		len++;
+	return input + 0x20;
+}
 
-	for ( auto i = 0u; i < len; ++i )
+constexpr std::uint32_t const hash_elf_ignorecase( const char* str )
+{
+	std::uint32_t hash = 0;
+
+	for ( auto i = 0u; str[ i ]; ++i )
 	{
-		char current = str[ i ];
-		char current_upper = current + 0x20;
+		hash = char_to_lower( str[ i ] ) + 0x10 * hash;
 
-		if ( static_cast< uint8_t >( current - 0x41 ) > 0x19u )
-			current_upper = current;
-
-		hash = 16777619 * ( hash ^ current_upper );
+		if ( hash & 0xF0000000 )
+			hash ^= ( hash & 0xF0000000 ) ^ ( ( hash & 0xF0000000 ) >> 24 );
 	}
 
 	return hash;
 }
 
-/**
- * Same as spell_hash but you can use it in runtime
- *
- * Example: spell_hash_real("ZeriR");
- */
-constexpr std::uint32_t const spell_hash_real( const char* str ) /*use for script_spell* name*/
+constexpr std::uint32_t const hash_sdbm_ignorecase( const char* str )
 {
 	std::uint32_t hash = 0;
-	std::uint32_t len = 0;
 
-	while ( str[ len ] != '\0' )
-		len++;
-
-	for ( auto i = 0u; i < len; ++i )
+	for ( auto i = 0u; str[ i ]; ++i )
 	{
-		char current = str[ i ];
-		char current_upper = current + 0x20;
+		hash = hash * 65599 + char_to_lower( str[ i ] );
+	}
 
-		if ( static_cast< uint8_t >( current - 0x41 ) > 0x19u )
-			current_upper = current;
+	return hash;
+}
 
-		hash = current_upper + 0x10 * hash;
+constexpr std::uint32_t const hash_fnv1a_ignorecase( const char* str )
+{
+	std::uint32_t hash = 0x811C9DC5;
 
-		if ( hash & 0xF0000000 )
-			hash ^= ( hash & 0xF0000000 ) ^ ( ( hash & 0xF0000000 ) >> 24 );
+	for ( auto i = 0u; str[ i ]; ++i )
+	{
+		hash = 16777619 * ( hash ^ char_to_lower( str[ i ] ) );
 	}
 
 	return hash;
@@ -2286,6 +2279,9 @@ public:
 	virtual bool cherry_get_is_opponent( ) = 0;
 	virtual std::int8_t cherry_get_team_id( ) = 0;
 
+	virtual bool get_health_bar_position( vector4& bar_position, vector4& hp_position ) = 0;
+	virtual std::uint32_t get_character_name_hash( ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
@@ -2341,6 +2337,7 @@ public:
 	virtual void* d3d11_device_swap_chain( ) = 0;
 
 	virtual void screen_to_world( const vector& screen, vector& world ) = 0;
+	virtual float get_dpi_factor( ) = 0;
 };
 
 class hud_select_logic
