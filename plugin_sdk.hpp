@@ -949,7 +949,7 @@ enum class ItemId: uint32_t
 	Cry_of_the_Shrieking_City = 7033,
 	Gangplank_Placeholder = 7050,
 	Anathemas_Chains = 8001,
-	Abyssal_Mask = 8020
+	Abyssal_Mask = 8020,
 };
 enum class buff_type: unsigned char
 {
@@ -1167,7 +1167,7 @@ enum class champion_id
 	SG_RekSai,
 	SG_KogMaw,
 	SG_KhaZix,
-	SG_ChoGath
+	SG_ChoGath,
 };
 
 enum class spellslot: int32_t
@@ -1486,6 +1486,8 @@ public:
 
 	virtual spellslot get_spellslot( ) = 0;
 	virtual std::int32_t get_level( ) = 0;
+
+	virtual vector get_cast_position( ) = 0;
 };
 
 class character_data
@@ -2428,6 +2430,17 @@ public:
 
 	virtual bool get_health_bar_position( vector4& bar_position, vector4& hp_position ) = 0;
 	virtual std::uint32_t get_character_name_hash( ) = 0;
+
+	virtual float get_object_creation_time( ) = 0;
+
+	virtual float missile_movement_get_missile_lifetime( ) = 0;
+	virtual float missile_movement_get_current_speed( ) = 0;
+	virtual float missile_movement_get_acceleration_magnitude( ) = 0;
+	virtual game_object_script missile_movement_get_target_unit( ) = 0;
+	virtual vector missile_movement_get_acceleration_direction( ) = 0;
+	virtual vector missile_movement_get_target_position( ) = 0;
+	virtual vector missile_movement_get_movement_start_position( ) = 0;
+	virtual vector missile_movement_get_end_position( ) = 0;
 
 	bool is_valid( bool force = false );
 
