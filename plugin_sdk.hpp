@@ -520,6 +520,107 @@ enum class game_object_team : std::int32_t
 	neutral = 300
 };
 
+enum class AugmentId: std::uint32_t
+{
+	CourageoftheColossus = buff_hash( "Augment_CourageoftheColossus" ),
+	TankItOrLeaveIt = buff_hash( "Augment_TankItOrLeaveIt" ),
+	Goliath = buff_hash( "Augment_Goliath" ),
+	LightningStrikes = buff_hash( "Augment_LightningStrikes" ),
+	Evocation = buff_hash( "Augment_Evocation" ),
+	InfernalConduit = buff_hash( "Augment_InfernalConduit" ),
+	WillingSacrifice = buff_hash( "Augment_WillingSacrifice" ),
+	SonicBoom = buff_hash( "Augment_SonicBoom" ),
+	OutlawsGrit = buff_hash( "Augment_OutlawsGrit" ),
+	Castle = buff_hash( "Augment_Castle" ),
+	Tormentor = buff_hash( "Augment_Tormentor" ),
+	EtherealWeapon = buff_hash( "Augment_EtherealWeapon" ),
+	WithHaste = buff_hash( "Augment_WithHaste" ),
+	ThreadtheNeedle = buff_hash( "Augment_ThreadtheNeedle" ),
+	Dashing = buff_hash( "Augment_Dashing" ),
+	SpiritLink = buff_hash( "Augment_SpiritLink" ),
+	MysticPunch = buff_hash( "Augment_MysticPunch" ),
+	Chauffeur = buff_hash( "Augment_Chauffeur" ),
+	Vulnerability = buff_hash( "Augment_Vulnerability" ),
+	Mythical = buff_hash( "Augment_Mythical" ),
+	SoulSiphon = buff_hash( "Augment_SoulSiphon" ),
+	BluntForce = buff_hash( "Augment_BluntForce" ),
+	Perseverance = buff_hash( "Augment_Perseverance" ),
+	ZhonyasEpiphany = buff_hash( "Augment_ZhonyasEpiphany" ),
+	DiveBomber = buff_hash( "Augment_DiveBomber" ),
+	ShadowRunner = buff_hash( "Augment_ShadowRunner" ),
+	DontBlink = buff_hash( "Augment_DontBlink" ),
+	OmniSoul = buff_hash( "Augment_OmniSoul" ),
+	GuiltyPleasure = buff_hash( "Augment_GuiltyPleasure" ),
+	BacktoBasics = buff_hash( "Augment_BacktoBasics" ),
+	KeystoneConjurer = buff_hash( "Augment_KeystoneConjurer" ),
+	JuiceBox = buff_hash( "Augment_JuiceBox" ),
+	ContractKiller = buff_hash( "Augment_ContractKiller" ),
+	MadScientist = buff_hash( "Augment_MadScientist" ),
+	JeweledGauntlet = buff_hash( "Augment_JeweledGauntlet" ),
+	OceanSoul = buff_hash( "Augment_OceanSoul" ),
+	MindtoMatter = buff_hash( "Augment_MindtoMatter" ),
+	DieAnotherDay = buff_hash( "Augment_DieAnotherDay" ),
+	CannonFodder = buff_hash( "Augment_CannonFodder" ),
+	FrostWraith = buff_hash( "Augment_FrostWraith" ),
+	PhenomenalEvil = buff_hash( "Augment_PhenomenalEvil" ),
+	ComboMaster = buff_hash( "Augment_ComboMaster" ),
+	WarmupRoutine = buff_hash( "Augment_WarmupRoutine" ),
+	NowYouSeeMe = buff_hash( "Augment_NowYouSeeMe" ),
+	Earthwake = buff_hash( "Augment_Earthwake" ),
+	AcceleratingSorcery = buff_hash( "Augment_AcceleratingSorcery" ),
+	WindspeakersBlessing = buff_hash( "Augment_WindspeakersBlessing" ),
+	ApexInventor = buff_hash( "Augment_ApexInventor" ),
+	ExtendoArm = buff_hash( "Augment_ExtendoArm" ),
+	Firebrand = buff_hash( "Augment_Firebrand" ),
+	DemonsDance = buff_hash( "Augment_DemonsDance" ),
+	MountainSoul = buff_hash( "Augment_MountainSoul" ),
+	BannerofCommand = buff_hash( "Augment_BannerofCommand" ),
+	Eureka = buff_hash( "Augment_Eureka" ),
+	BuckleUp = buff_hash( "Augment_BuckleUp" ),
+	CantTouchThis = buff_hash( "Augment_CantTouchThis" ),
+	CircleofDeath = buff_hash( "Augment_CircleofDeath" ),
+	LightemUp = buff_hash( "Augment_LightemUp" ),
+	ScopedWeapons = buff_hash( "Augment_ScopedWeapons" ),
+	Executioner = buff_hash( "Augment_Executioner" ),
+	MasterofDuality = buff_hash( "Augment_MasterofDuality" ),
+	RestlessRestoration = buff_hash( "Augment_RestlessRestoration" ),
+	RabbleRousing = buff_hash( "Augment_RabbleRousing" ),
+	OkBoomerang = buff_hash( "Augment_OkBoomerang" ),
+	ShrinkRay = buff_hash( "Augment_ShrinkRay" ),
+	MidnightExpress = buff_hash( "Augment_MidnightExpress" ),
+	WitchfulThinking = buff_hash( "Augment_WitchfulThinking" ),
+	Repulsor = buff_hash( "Augment_Repulsor" ),
+	TheBrutalizer = buff_hash( "Augment_TheBrutalizer" ),
+	ThiefsGloves = buff_hash( "Augment_ThiefsGloves" ),
+	Vanish = buff_hash( "Augment_Vanish" ),
+	SymphonyofWar = buff_hash( "Augment_SymphonyofWar" ),
+	InfernalSoul = buff_hash( "Augment_InfernalSoul" ),
+	FromBeginningToEnd = buff_hash( "Augment_FromBeginningToEnd" ),
+	FeeltheBurn = buff_hash( "Augment_FeeltheBurn" ),
+	ItsCritical = buff_hash( "Augment_ItsCritical" ),
+	UltimateRevolution = buff_hash( "Augment_UltimateRevolution" ),
+	BladeWaltz = buff_hash( "Augment_BladeWaltz" ),
+	TrueshotProdigy = buff_hash( "Augment_TrueshotProdigy" ),
+	FirstAidKit = buff_hash( "Augment_FirstAidKit" ),
+	CelestialBody = buff_hash( "Augment_CelestialBody" ),
+	TapDancer = buff_hash( "Augment_TapDancer" ),
+	DawnbringersResolve = buff_hash( "Augment_DawnbringersResolve" ),
+	Erosion = buff_hash( "Augment_Erosion" ),
+	Vengeance = buff_hash( "Augment_Vengeance" ),
+	DefensiveManeuvers = buff_hash( "Augment_DefensiveManeuvers" ),
+	SearingDawn = buff_hash( "Augment_SearingDawn" ),
+	QuantumComputing = buff_hash( "Augment_QuantumComputing" ),
+	SlowCooker = buff_hash( "Augment_SlowCooker" ),
+	Typhoon = buff_hash( "Augment_Typhoon" ),
+	IceCold = buff_hash( "Augment_IceCold" ),
+	BuffBuddies = buff_hash( "Augment_BuffBuddies" ),
+	WisdomofAges = buff_hash( "Augment_WisdomOfAges" ),
+	FallenAegis = buff_hash( "Augment_FallenAegis" ),
+	FrozenFoundations = buff_hash( "Augment_FrozenFoundations" ),
+	Recursion = buff_hash( "Augment_Recursion" ),
+	Deft = buff_hash( "Augment_Deft" ),
+};
+
 enum class ItemId: uint32_t
 {
 	Boots = 1001,
@@ -2442,6 +2543,9 @@ public:
 	virtual vector missile_movement_get_movement_start_position( ) = 0;
 	virtual vector missile_movement_get_end_position( ) = 0;
 
+	virtual bool has_augment( AugmentId id ) = 0;
+	virtual std::vector<AugmentId> get_augments( ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
@@ -2555,12 +2659,22 @@ public:
 	virtual std::size_t get_chat_history_size( ) = 0;
 	virtual std::size_t get_chat_current_message_index( ) = 0;
 	virtual const char* get_chat_message_by_index( std::size_t index, bool realtive = true ) = 0;
+
+	virtual bool is_scoreboard_open( ) = 0;
+	virtual bool is_shop_open( ) = 0;
+	virtual bool is_augment_selection_open( ) = 0;
+
+	virtual vector4 get_scoreboard_size( ) = 0;
+	virtual vector4 get_shop_size( ) = 0;
+
+	virtual std::vector<AugmentId> get_augments_in_selection( ) = 0;
 };
 
 class game_ping
 {
 public:
 	virtual float get_ping( ) = 0;
+	virtual float get_ping_with_precision( ) = 0;
 };
 
 class input
