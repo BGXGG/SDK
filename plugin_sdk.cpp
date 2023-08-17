@@ -85,7 +85,7 @@ bool plugin_sdk_core::remove_spell( script_spell* spell )
 	return true;
 }
 
-void drawning_manager::draw_circle_on_minimap( vector const& center, float radius, unsigned long color, float thickness, int quality )
+void drawning_manager::draw_circle_on_minimap( vector const& center, float radius, unsigned int color, float thickness, int quality )
 {
 	geometry::polygon result;
 
@@ -1404,7 +1404,7 @@ namespace antigapcloser
 				TrackedDash new_dash;
 				new_dash.sender = sender;
 				new_dash.target = target;
-				new_dash.dash_data = it._Ptr;
+				new_dash.dash_data = &(*it);
 				new_dash.start_position = start;
 				new_dash.end_position = end;
 				new_dash.speed = it->speed + sender->get_move_speed( ) * it->add_ms_ratio;
