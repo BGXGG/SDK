@@ -7,6 +7,8 @@
 #include <algorithm>
 #include "clipper.h"
 #include <map>
+#include <math.h>
+#include <cmath>
 
 extern "C++" {
 
@@ -63,8 +65,51 @@ const static bool is_internal = true;
 const static bool is_internal = false;
 #endif
 
+#if !defined(FLT_MAX)
+#define FLT_DECIMAL_DIG  9                       // # of decimal digits of rounding precision
+#define FLT_DIG          6                       // # of decimal digits of precision
+#define FLT_EPSILON      1.192092896e-07F        // smallest such that 1.0+FLT_EPSILON != 1.0
+#define FLT_HAS_SUBNORM  1                       // type does support subnormal numbers
+#define FLT_GUARD        0
+#define FLT_MANT_DIG     24                      // # of bits in mantissa
+#define FLT_MAX          3.402823466e+38F        // max value
+#define FLT_MAX_10_EXP   38                      // max decimal exponent
+#define FLT_MAX_EXP      128                     // max binary exponent
+#define FLT_MIN          1.175494351e-38F        // min normalized positive value
+#define FLT_MIN_10_EXP   (-37)                   // min decimal exponent
+#define FLT_MIN_EXP      (-125)                  // min binary exponent
+#define FLT_NORMALIZE    0
+#define FLT_RADIX        2                       // exponent radix
+#define FLT_TRUE_MIN     1.401298464e-45F        // min positive value
+#endif
+
+#if defined(__APPLE__)
+#define PLUGIN_API	extern "C" __attribute__((visibility("default")))
+#else
 #define PLUGIN_API	extern "C" __declspec(dllexport)
+#endif
 #define PLUGIN_SDK_VERSION 1
+
+
+#if defined(__APPLE__)
+static int stricmp( const char* s1, const char* s2 ) 
+{
+#ifdef HAVE_STRCASECMP
+	return strcasecmp( s1, s2 )
+#else
+	while ( tolower( ( unsigned char ) *s1 ) == tolower( ( unsigned char ) *s2 ) ) {
+		if ( *s1 == '\0' )
+			return 0;
+		s1++; s2++;
+	}
+
+	return ( int ) tolower( ( unsigned char ) *s1 ) -
+		( int ) tolower( ( unsigned char ) *s2 );
+#endif /* !HAVE_STRCASECMP */
+}
+#define _strcmpi stricmp
+#define _stricmp stricmp
+#endif
 
 enum class plugin_type: std::int32_t
 {
@@ -139,7 +184,7 @@ champion_id supported_champions[ ] = { __VA_ARGS__ , champion_id::Unknown };
 
 
 #define D3DCOLOR_ARGB(a,r,g,b) \
-    ((unsigned long)((((a)&0xff)<<24)|(((b)&0xff)<<16)|(((g)&0xff)<<8)|((r)&0xff)))
+    ((unsigned int)((((a)&0xff)<<24)|(((b)&0xff)<<16)|(((g)&0xff)<<8)|((r)&0xff)))
 
 
   /**
@@ -329,7 +374,9 @@ public:
 	virtual game_state_stage get_stage( ) = 0;
 };
 
+#if !defined(M_PI)
 #define M_PI 3.14159265358979323846f
+#endif
 
 constexpr float degrees_to_radians( float angle )
 {
@@ -3866,19 +3913,19 @@ struct glow_data
 class drawning_manager
 {
 public:
-	virtual void add_text( vector const& point, unsigned long color, int font_size, const char* format, ... );
-	virtual void add_text_on_screen( vector const& point, unsigned long color, int font_size, const char* format, ... );
-	virtual void add_circle( vector const& center, float radius, unsigned long color, float thickness = 1.f, float height = -1.f, int num_segments = 200 );
-	virtual void add_circle_on_screen( vector const& center, float radius, unsigned long color, float thickness = 1.0f, int num_segments = 200 );
-	virtual void add_line( vector const& a, vector const& b, unsigned long color, float thickness = 1.f );
-	virtual void add_line_on_screen( vector const& start, vector const& end, unsigned long color, float thickness = 1.0f );
-	virtual void add_rect( const vector& a, const vector& b, unsigned long col, float rounding = 0.0f, int rounding_corners_flags = ~0 );
-	virtual void add_filled_rect( const vector& a, const vector& b, unsigned long col, float rounding = 0.0f, int rounding_corners_flags = ~0 );
+	virtual void add_text( vector const& point, unsigned int color, int font_size, const char* format, ... );
+	virtual void add_text_on_screen( vector const& point, unsigned int color, int font_size, const char* format, ... );
+	virtual void add_circle( vector const& center, float radius, unsigned int color, float thickness = 1.f, float height = -1.f, int num_segments = 200 );
+	virtual void add_circle_on_screen( vector const& center, float radius, unsigned int color, float thickness = 1.0f, int num_segments = 200 );
+	virtual void add_line( vector const& a, vector const& b, unsigned int color, float thickness = 1.f );
+	virtual void add_line_on_screen( vector const& start, vector const& end, unsigned int color, float thickness = 1.0f );
+	virtual void add_rect( const vector& a, const vector& b, unsigned int col, float rounding = 0.0f, int rounding_corners_flags = ~0 );
+	virtual void add_filled_rect( const vector& a, const vector& b, unsigned int col, float rounding = 0.0f, int rounding_corners_flags = ~0 );
 	virtual void add_image( uint32_t* user_texture_id, const vector& pos, const vector& size, float rounding = 0.0f, const vector& uv0 = vector( 0, 0 ), const vector& uv1 = vector( 1, 1 ), const ImVec4& tint_col = ImVec4( 1, 1, 1, 1 ), const ImVec4& border_col = ImVec4( 0, 0, 0, 0 ) );
 	virtual vector calc_text_size( int font_size, const char* format, ... ) = 0;
 	virtual loaded_texture* load_texture_from_file( const std::wstring& path ) = 0;
-	virtual void add_filled_circle_on_screen( vector const& center, float radius, unsigned long color, int num_segments = 30 ) = 0;
-	virtual void add_filled_circle( vector const& center, float radius, unsigned long color, float height = -1.f, int num_segments = 30 ) = 0;
+	virtual void add_filled_circle_on_screen( vector const& center, float radius, unsigned int color, int num_segments = 30 ) = 0;
+	virtual void add_filled_circle( vector const& center, float radius, unsigned int color, float height = -1.f, int num_segments = 30 ) = 0;
 	virtual void add_rectangle_3d( const vector& start, const vector& end, unsigned int color, float rectangle_width, float outline_width, float rounding, float glow_power ) = 0;
 	virtual void add_rectangle_3d_filled( const vector& start, const vector& end, unsigned int color, float rectangle_width, float rounding ) = 0;
 	virtual void add_circle_with_glow( const vector& center, unsigned int color, float radius, float line_width, const glow_data& glow ) = 0;
@@ -3889,7 +3936,9 @@ public:
 	virtual void add_circle_gradient( vector const& center, float radius, unsigned int color, unsigned int color2, float thickness = 1.f, float height = -1.f ) = 0;
 	virtual void add_filled_circle_gradient( vector const& center, float radius, unsigned int color, unsigned int color2, float height = -1.f ) = 0;
 	virtual std::pair<bool, bool> overwrite_shader_settings( bool use_depth, bool height_scale ) = 0;
-	void draw_circle_on_minimap( vector const& center, float radius, unsigned long color, float thickness = 1.f, int quality = 40 );
+	virtual void add_circle_ex( vector const& center, float radius, std::uint32_t color, float thickness = 1.f, float fill_percent = 1.0f, bool scale_with_navmesh = false ) = 0;
+	virtual void add_circle_with_glow_gradient_ex( const vector& center, unsigned int color, unsigned int color2, float radius, float line_width, const glow_data& glow, float fill_percent = 1.0f, bool scale_with_navmesh = false ) = 0;
+	void draw_circle_on_minimap( vector const& center, float radius, unsigned int color, float thickness = 1.f, int quality = 40 );
 };
 
 class sound_manager
