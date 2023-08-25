@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <cctype>
 #include <string>
 #include <functional>
 #include <vector>
@@ -7,6 +8,7 @@
 #include <algorithm>
 #include "clipper.h"
 #include <map>
+#include <unordered_map>
 #include <math.h>
 #include <cmath>
 
