@@ -2745,7 +2745,8 @@ enum class nav_collision_flags: std::int16_t
 	none = 0,
 	grass = 1,
 	wall = 2,
-	building = 64,
+	building = 4,
+	wall_see_through = 64,
 	prop = 128,
 	global_vision = 256
 };
