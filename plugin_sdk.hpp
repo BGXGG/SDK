@@ -1310,6 +1310,7 @@ enum class champion_id
 	KSante = 897,
 	Milio = 902,
 	Naafiri = 950,
+        Briar = 233,
 	Unknown = 5000,
 	TFTChampion,
 	SG_Skarner,
