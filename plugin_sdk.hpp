@@ -4084,8 +4084,13 @@ public:
 	virtual bool is_in_range( const vector& point, float range = -1 );
 
 	void set_charge_buff_name( std::uint32_t name ) { this->charge_buff_name = name; }
+	
+	//deprecated
 	void set_spell_lock( bool value );
+
+	//deprecated
 	bool is_spell_locked( );
+	
 	int8_t icon_index( );
 	game_object_script get_target( float extra_range = 0 );
 	prediction_output get_prediction( game_object_script target, const vector& origin, const vector& range_check_from );
