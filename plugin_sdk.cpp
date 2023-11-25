@@ -50,24 +50,10 @@ PLUGIN_API void on_plugin_reconnect( )
 }
 
 std::vector<std::unique_ptr<script_spell>> script_spells;
-std::map< spellslot, bool > enabled_spellslots = { { spellslot::q, true }, { spellslot::w, true }, { spellslot::e, true }, { spellslot::r, true } };
-
-bool is_hooked = false;
-float next_spell_cast_t = 0.f;
-
-void on_cast_spell( spellslot spell_slot, game_object_script target, vector& pos, vector& pos2, bool is_charge, bool* process )
-{
-	if ( spell_slot >= spellslot::q && spell_slot <= spellslot::r && myhero->get_spell_state( spell_slot ) == spell_state::Ready && !is_charge )
-	{
-		if ( !target && gametime->get_time( ) < next_spell_cast_t && enabled_spellslots[ spell_slot ] ) *process = false;
-		else next_spell_cast_t = gametime->get_time( ) + ping->get_ping( ) / 1000.f + 0.133f;
-	}
-}
 
 script_spell* plugin_sdk_core::register_spell( spellslot slot, float range )
 {
 	if ( slot == spellslot::invalid ) return nullptr;
-	if ( !is_hooked ) event_handler<events::on_cast_spell>::add_callback( on_cast_spell );
 
 	script_spells.push_back( std::make_unique<script_spell>( slot, range ) );
 
@@ -2069,17 +2055,13 @@ float script_spell::cooldown_time( )
 
 void script_spell::set_spell_lock( bool value )
 {
-	if ( slot >= spellslot::q && slot <= spellslot::r ) enabled_spellslots[ slot ] = value;
-
-	is_spell_lock_enable = value;
+	//deprecated
 }
 
 bool script_spell::is_spell_locked( )
 {
-	if ( !is_spell_lock_enable ) return false;
-
-	auto active_spell = myhero->get_active_spell( );
-	return active_spell != nullptr && !active_spell->is_auto_attack( ) && active_spell->is_winding_up( );
+	//deprecated
+	return false;
 }
 
 vector script_spell::get_cast_on_best_farm_position( int minMinions, bool is_jugnle_mobs )
@@ -2315,9 +2297,6 @@ bool script_spell::cast_on_best_farm_position( int minMinions, bool is_jugnle_mo
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
 
-	if ( is_spell_locked( ) )
-		return false;
-
 	auto best_pos = get_cast_on_best_farm_position( minMinions, is_jugnle_mobs );
 
 	if ( best_pos.is_valid( ) )
@@ -2347,9 +2326,6 @@ bool script_spell::cast( game_object_script unit, hit_chance minimum, bool aoe, 
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
 
-	if ( is_spell_locked( ) )
-		return false;
-
 	auto output = this->get_prediction( unit );
 
 	if ( output.hitchance >= minimum && output.aoe_targets_hit_count( ) >= min_targets )
@@ -2377,10 +2353,7 @@ bool script_spell::cast( const vector& position )
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
-
-	if ( is_spell_locked( ) )
-		return false;
-
+	
 	if ( !this->is_charged_spell )
 	{
 		myhero->cast_spell( this->slot, position );
@@ -2422,9 +2395,6 @@ bool script_spell::cast( game_object_script unit )
 bool script_spell::cast( const vector& startPosition, const vector& endPosition )
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
-		return false;
-
-	if ( is_spell_locked( ) )
 		return false;
 
 	myhero->cast_spell( this->slot, startPosition, endPosition );
@@ -2478,9 +2448,6 @@ bool script_spell::start_charging( const vector& position )
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
 
-	if ( is_spell_locked( ) )
-		return false;
-
 	if ( !is_charging( ) && this->is_ready( ) )
 	{
 		myhero->cast_spell( this->slot, position, true, true );
@@ -2500,12 +2467,8 @@ bool script_spell::fast_cast( const vector& position )
 	if ( is_charging( ) )
 		myhero->update_charged_spell( this->slot, position, true );
 	else
-	{
-		if ( is_spell_locked( ) )
-			return false;
-
 		myhero->cast_spell( this->slot, position );
-	}
+
 	last_cast_spell = gametime->get_time( );
 
 	return true;
