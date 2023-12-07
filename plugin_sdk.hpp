@@ -1311,6 +1311,7 @@ enum class champion_id
 	Milio = 902,
 	Naafiri = 950,
         Briar = 233,
+        Hwei = 910,
 	Unknown = 5000,
 	TFTChampion,
 	SG_Skarner,
@@ -3942,6 +3943,8 @@ public:
 	virtual std::pair<bool, bool> overwrite_shader_settings( bool use_depth, bool height_scale ) = 0;
 	virtual void add_circle_ex( vector const& center, float radius, std::uint32_t color, float thickness = 1.f, float fill_percent = 1.0f, bool scale_with_navmesh = false ) = 0;
 	virtual void add_circle_with_glow_gradient_ex( const vector& center, unsigned int color, unsigned int color2, float radius, float line_width, const glow_data& glow, float fill_percent = 1.0f, bool scale_with_navmesh = false ) = 0;
+	virtual void* load_texture_from_pixels( const std::uint8_t* data, std::uint32_t width, std::uint32_t height ) = 0;
+	virtual std::pair<std::uint8_t*, std::uint32_t> load_data_from_file( const std::wstring& path ) = 0;
 	void draw_circle_on_minimap( vector const& center, float radius, unsigned int color, float thickness = 1.f, int quality = 40 );
 };
 
