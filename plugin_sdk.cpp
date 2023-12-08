@@ -1390,7 +1390,7 @@ namespace antigapcloser
 				TrackedDash new_dash;
 				new_dash.sender = sender;
 				new_dash.target = target;
-				new_dash.dash_data = &(*it);
+				new_dash.dash_data = &( *it );
 				new_dash.start_position = start;
 				new_dash.end_position = end;
 				new_dash.speed = it->speed + sender->get_move_speed( ) * it->add_ms_ratio;
@@ -2023,7 +2023,10 @@ bool script_spell::cast( )
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
 
-	myhero->cast_spell( this->slot, true, is_charged_spell );
+	if ( this->category == spellslot::invalid )
+		myhero->cast_spell( this->slot, true, is_charged_spell );
+	else
+		myhero->cast_spell_ex( this->category, this->slot, vector::zero, vector::zero );
 
 	last_cast_spell = gametime->get_time( );
 	return true;
@@ -2292,6 +2295,14 @@ bool script_spell::is_in_range( vector const& point, float range )
 	return source.distance_squared( point ) < ( range < 0 ? range_sqr : ( range * range ) );
 }
 
+void script_spell::set_spell_slot_category( spellslot slot )
+{
+	if ( slot < spellslot::q || slot >= spellslot::r )
+		return;
+
+	this->category = slot;
+}
+
 bool script_spell::cast_on_best_farm_position( int minMinions, bool is_jugnle_mobs )
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
@@ -2303,7 +2314,10 @@ bool script_spell::cast_on_best_farm_position( int minMinions, bool is_jugnle_mo
 	{
 		if ( !this->is_charged_spell )
 		{
-			myhero->cast_spell( this->slot, best_pos );
+			if ( this->category == spellslot::invalid )
+				myhero->cast_spell( this->slot, best_pos );
+			else
+				myhero->cast_spell_ex( this->category, this->slot, best_pos, vector::zero );
 
 			last_cast_spell = gametime->get_time( );
 			return true;
@@ -2332,8 +2346,10 @@ bool script_spell::cast( game_object_script unit, hit_chance minimum, bool aoe, 
 	{
 		if ( !this->is_charged_spell )
 		{
-			myhero->cast_spell( this->slot, output.get_cast_position( ) );
-
+			if ( this->category == spellslot::invalid )
+				myhero->cast_spell( this->slot, output.get_cast_position( ) );
+			else
+				myhero->cast_spell_ex( this->category, this->slot, output.get_cast_position( ), vector::zero );
 			last_cast_spell = gametime->get_time( );
 			return true;
 		}
@@ -2353,10 +2369,14 @@ bool script_spell::cast( const vector& position )
 {
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
-	
+
 	if ( !this->is_charged_spell )
 	{
-		myhero->cast_spell( this->slot, position );
+		if ( this->category == spellslot::invalid )
+			myhero->cast_spell( this->slot, position );
+		else
+			myhero->cast_spell_ex( this->category, this->slot, position, vector::zero );
+
 
 		last_cast_spell = gametime->get_time( );
 		return true;
@@ -2378,7 +2398,11 @@ bool script_spell::cast( game_object_script unit )
 
 	if ( !this->is_charged_spell )
 	{
-		myhero->cast_spell( this->slot, unit );
+		if ( this->category == spellslot::invalid )
+			myhero->cast_spell( this->slot, unit );
+		else
+			myhero->cast_spell_ex( this->category, this->slot, vector::zero, vector::zero, unit );
+
 		last_cast_spell = gametime->get_time( );
 		return true;
 	}
@@ -2397,7 +2421,10 @@ bool script_spell::cast( const vector& startPosition, const vector& endPosition 
 	if ( gametime->get_time( ) < last_cast_spell + sciprt_spell_wait )
 		return false;
 
-	myhero->cast_spell( this->slot, startPosition, endPosition );
+	if ( this->category == spellslot::invalid )
+		myhero->cast_spell( this->slot, startPosition, endPosition );
+	else
+		myhero->cast_spell_ex( this->category, this->slot, startPosition, endPosition );
 
 	last_cast_spell = gametime->get_time( );
 	return true;
