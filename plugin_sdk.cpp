@@ -1905,7 +1905,7 @@ bool script_spell::is_ready( float time )
 
 	if ( spellInfo && spellInfo->is_learned( ) )
 	{
-		auto spell_state = myhero->get_spell_state( this->slot );
+		auto spell_state = myhero->get_spell_state( this->category == spellslot::invalid ? this->slot : this->category );
 
 		if ( spell_state == 64 )
 		{
