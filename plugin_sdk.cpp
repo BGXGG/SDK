@@ -291,10 +291,11 @@ float game_object::get_real_health( bool physical_shield, bool magical_shield )
 				{
 					if ( this->get_mana( ) == 100 )
 					{
-						int passive[] = { 115, 120, 125, 130, 135, 145, 155, 165, 180, 195, 210, 240, 270, 305, 345, 395, 455, 525 };
-						int lvl = std::max( 17, this->get_level( ) - 1 );
-						auto temp = passive[ lvl ];
-						result += temp;
+						constexpr double scalar = 475.0 / 17.0;
+						int lvl = std::min( 17, this->get_level( ) - 1 );
+						double passive = 125.0 + ( scalar * lvl * ( 0.7025 + 0.0175 * lvl ) );
+						
+						result += ( float ) passive;
 					}
 					break;
 				}
