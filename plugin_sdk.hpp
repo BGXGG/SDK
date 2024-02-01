@@ -4245,11 +4245,10 @@ namespace neutral_camp_id
 {
 	enum
 	{
-		Blue_Order = 2,
+		Blue_Order = 1,
 		Blue_Chaos,
 		Red_Order,
 		Red_Chaos,
-		Dragon,
 		Gromp_Order,
 		Gromp_Chaos,
 		Wolves_Order,
@@ -4258,11 +4257,12 @@ namespace neutral_camp_id
 		Raptors_Chaos,
 		Krugs_Order,
 		Krugs_Chaos,
-		Herlad,
 		Baron,
 		Voidgrubs,
 		Crab_Bottom,
 		Crab_Top,
+		Dragon,
+		Herlad,
 		Max_Camps
 	};
 };
