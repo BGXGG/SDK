@@ -1442,6 +1442,7 @@ enum class champion_id
 	Naafiri = 950,
 	Briar = 233,
 	Hwei = 910,
+	Smolder = 901,
 	Unknown = 5000,
 	TFTChampion,
 	SG_Skarner,
