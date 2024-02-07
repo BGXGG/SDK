@@ -471,36 +471,30 @@ spellslot game_object::has_item( ItemId itemid )
 
 std::vector<vector> game_object::get_real_path( )
 {
+	std::vector<vector> result =
+	{
+		this->get_position( )
+	};
+
 	if ( this->is_ai_base( ) && !this->is_ai_turret( ) && !this->is_nexus( ) && !this->is_inhibitor( ) )
 	{
-		auto const path_controller = this->get_path_controller( );
-		if ( !path_controller || ( this->is_winding_up( ) && !this->get_path_controller( )->is_dashing( ) ) )
-			return { this->get_position( ) };
+		auto pctr = this->get_path_controller( );
 
-		if ( path_controller )
+		if ( pctr )
 		{
-			if ( !path_controller->is_moving( ) )
-			{
-				return { this->get_position( ) };
-			}
-
-			size_t current_path_node = path_controller->get_current_path_node( );
+			size_t current_path_node = pctr->get_current_path_node( );
 
 			if ( current_path_node == 0 )
 				current_path_node = 1;
 
-			auto path = path_controller->get_path( );
+			auto const& path = pctr->get_path( );
 
-			std::vector<vector> r{ this->get_position( ) };
-
-			for ( auto i = current_path_node; i < path.size( ); ++i )
-				r.push_back( path[ i ] );
-
-			return r;
+			for ( size_t i = current_path_node; i < path.size( ); ++i )
+				result.push_back( path[ i ] );
 		}
 	}
 
-	return { this->get_position( ) };
+	return result;
 }
 
 bool game_object::is_in_auto_attack_range( game_object_script to, float additional )
