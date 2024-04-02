@@ -2730,6 +2730,8 @@ public:
 
 	virtual void cast_spell_ex( spellslot category, spellslot slot, const vector& start_pos, const vector& end_pos, game_object_script target = nullptr, bool trigger_event = true ) = 0;
 
+	virtual float get_champ_specific_health( ) = 0;
+
 	bool is_valid( bool force = false );
 
 	//Returns the immovibility time left of the object
