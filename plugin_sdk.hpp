@@ -555,10 +555,17 @@ struct PKT_S2C_PlayAnimationArgs
 	const char* animation_name;
 };
 
+struct PKT_S2C_UnknownArgs
+{
+	std::uint16_t packet_id;
+};
+
 enum class pkttype_e: std::uint16_t
 {
 	PKT_S2C_PlayAnimation_s, //PKT_S2C_PlayAnimationArgs
-	PKT_S2C_ForceCreateMissile_s //nullptr
+	PKT_S2C_ForceCreateMissile_s, //PKT_S2C_UnknownArgs
+	PKT_S2C_Unknown, //PKT_S2C_UnknownArgs
+	PKT_NPC_Die_MapView_s //PKT_S2C_UnknownArgs
 };
 
 enum class game_object_team : std::int32_t
@@ -581,7 +588,6 @@ enum class AugmentId: std::uint32_t
 	WarmupRoutine = 0xB731243,// buff_hash( "WarmupRoutine" )
 	HeavyHitter = 0x109C1530,// buff_hash( "HeavyHitter" )
 	SummonersRoulette = 0x13BDA632,// buff_hash( "SummonersRoulette" )
-	Deathtouch = 0x13C668D0,// buff_hash( "Deathtouch" )
 	EtherealWeapon = 0x13E8C4A7,// buff_hash( "EtherealWeapon" )
 	TheBrutalizer = 0x16EA7954,// buff_hash( "TheBrutalizer" )
 	ItsKillingTime = 0x17A308CA,// buff_hash( "ItsKillingTime" )
@@ -594,6 +600,7 @@ enum class AugmentId: std::uint32_t
 	NowYouSeeMe = 0x26433BAB,// buff_hash( "NowYouSeeMe" )
 	FeeltheBurn = 0x2D24DA51,// buff_hash( "FeeltheBurn" )
 	ItsCritical = 0x2E4815CC,// buff_hash( "ItsCritical" )
+	GambaAnvil = 0x2EFA5F6D,// buff_hash( "GambaAnvil" )
 	MadScientist = 0x301C4AB9,// buff_hash( "MadScientist" )
 	DontBlink = 0x361E81B4,// buff_hash( "DontBlink" )
 	GuiltyPleasure = 0x38A48C10,// buff_hash( "GuiltyPleasure" )
@@ -612,7 +619,6 @@ enum class AugmentId: std::uint32_t
 	FromBeginningToEnd = 0x48DC2006,// buff_hash( "FromBeginningToEnd" )
 	DawnbringersResolve = 0x4B303285,// buff_hash( "DawnbringersResolve" )
 	WillingSacrifice = 0x4B43BF6C,// buff_hash( "WillingSacrifice" )
-	Desecrator = 0x4CB4F18B,// buff_hash( "Desecrator" )
 	JuiceBox = 0x4D27E960,// buff_hash( "JuiceBox" )
 	DontChase = 0x4DBF5E70,// buff_hash( "DontChase" )
 	BreadAndCheese = 0x4E28F2C3,// buff_hash( "BreadAndCheese" )
@@ -646,7 +652,6 @@ enum class AugmentId: std::uint32_t
 	Erosion = 0x8C2F16FE,// buff_hash( "Erosion" )
 	Perseverance = 0x8D3AE60E,// buff_hash( "Perseverance" )
 	ChainLightning = 0x8E40C3DC,// buff_hash( "ChainLightning" )
-	PlagueBearer = 0x9302C88E,// buff_hash( "PlagueBearer" )
 	TrueshotProdigy = 0x93AB024B,// buff_hash( "TrueshotProdigy" )
 	PhenomenalEvil = 0x94D656DE,// buff_hash( "PhenomenalEvil" )
 	ContractKiller = 0x97C4EFA0,// buff_hash( "ContractKiller" )
@@ -675,7 +680,6 @@ enum class AugmentId: std::uint32_t
 	MountainSoul = 0xAE76811D,// buff_hash( "MountainSoul" )
 	Vulnerability = 0xAFE4CF71,// buff_hash( "Vulnerability" )
 	RaidBoss = 0xB2EDEF40,// buff_hash( "RaidBoss" )
-	Doomsayer = 0xB4525C74,// buff_hash( "Doomsayer" )
 	MagicMissile = 0xB4545A74,// buff_hash( "MagicMissile" )
 	WitchfulThinking = 0xB503AEA3,// buff_hash( "WitchfulThinking" )
 	CantTouchThis = 0xB5D9645A,// buff_hash( "CantTouchThis" )
@@ -693,13 +697,11 @@ enum class AugmentId: std::uint32_t
 	UltimateUnstoppable = 0xCDF2651B,// buff_hash( "UltimateUnstoppable" )
 	ADAPt = 0xD18FEA7F,// buff_hash( "ADAPt" )
 	TapDancer = 0xD1F84AA5,// buff_hash( "TapDancer" )
-	DarkBlessing = 0xD2AADFF0,// buff_hash( "DarkBlessing" )
 	Spellwake = 0xD3CBE301,// buff_hash( "Spellwake" )
 	Flashbang = 0xD4DA8047,// buff_hash( "Flashbang" )
 	ShadowRunner = 0xD5F12997,// buff_hash( "ShadowRunner" )
 	CourageoftheColossus = 0xD68F7D08,// buff_hash( "CourageoftheColossus" )
 	InfernalConduit = 0xD79FD9B0,// buff_hash( "InfernalConduit" )
-	Mythical = 0xD985A586,// buff_hash( "Mythical" )
 	AcceleratingSorcery = 0xDA054EE4,// buff_hash( "AcceleratingSorcery" )
 	Repulsor = 0xDABCBBC3,// buff_hash( "Repulsor" )
 	ExtendoArm = 0xDE9A77E4,// buff_hash( "ExtendoArm" )
@@ -707,7 +709,6 @@ enum class AugmentId: std::uint32_t
 	LightningStrikes = 0xE48980B4,// buff_hash( "LightningStrikes" )
 	FallenAegis = 0xE67E996E,// buff_hash( "FallenAegis" )
 	BladeWaltz = 0xE8A9A9F1,// buff_hash( "BladeWaltz" )
-	ThiefsGloves = 0xE8CEE476,// buff_hash( "ThiefsGloves" )
 	FirstAidKit = 0xE9AFCCDF,// buff_hash( "FirstAidKit" )
 	Dashing = 0xED80A0CB,// buff_hash( "Dashing" )
 	FullyAutomated = 0xEDFA6D47,// buff_hash( "FullyAutomated" )
@@ -4248,10 +4249,11 @@ namespace neutral_camp_id
 {
 	enum
 	{
-		Blue_Order = 1,
+		Blue_Order = 2,
 		Blue_Chaos,
 		Red_Order,
 		Red_Chaos,
+		Dragon,
 		Gromp_Order,
 		Gromp_Chaos,
 		Wolves_Order,
@@ -4264,7 +4266,6 @@ namespace neutral_camp_id
 		Voidgrubs,
 		Crab_Bottom,
 		Crab_Top,
-		Dragon,
 		Herlad,
 		Max_Camps
 	};

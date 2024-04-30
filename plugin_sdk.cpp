@@ -294,7 +294,7 @@ float game_object::get_real_health( bool physical_shield, bool magical_shield )
 						constexpr double scalar = 475.0 / 17.0;
 						int lvl = std::min( 17, this->get_level( ) - 1 );
 						double passive = 125.0 + ( scalar * lvl * ( 0.7025 + 0.0175 * lvl ) );
-						
+
 						result += ( float ) passive;
 					}
 					break;
@@ -485,7 +485,7 @@ std::vector<vector> game_object::get_real_path( )
 			size_t current_path_node = pctr->get_current_path_node( );
 
 			if ( current_path_node == 0 )
-				current_path_node = 1;
+				 current_path_node = 1;
 
 			auto const& path = pctr->get_path( );
 
