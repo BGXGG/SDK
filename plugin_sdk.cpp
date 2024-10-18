@@ -1619,8 +1619,8 @@ namespace antigapcloser
 						add_dash( "LeblancRW", 600.f, 1450.f );
 						break;
 					case champion_id::LeeSin:
-						add_dash( "BlindMonkQTwo", 2000.f, 2000.f ).set_is_targeted( true ).set_required_buffhash( buff_hash( "BlindMonkQOne" ) ).set_find_target_by_buffhash( true );
-						add_dash( "BlindMonkWOne", 700.f, 1350.f ).set_is_targeted( true ).set_add_ms_ratio( 1.f );
+						add_dash( "LeeSinQTwo", 2000.f, 2000.f ).set_is_targeted( true ).set_required_buffhash( buff_hash( "LeeSinQOne" ) ).set_find_target_by_buffhash( true );
+						add_dash( "LeeSinWOne", 700.f, 1350.f ).set_is_targeted( true ).set_add_ms_ratio( 1.f );
 						break;
 					case champion_id::Leona:
 						add_dash( "LeonaZenithBlade", 900.f, 1300.f ).set_is_cc( true ).set_always_fixed_delay( 0.75f );
