@@ -1446,6 +1446,7 @@ enum class champion_id
 	Smolder = 901,
 	Aurora = 893,
 	Ambessa = 799,
+	Mel = 800,
 	Unknown = 5000,
 	TFTChampion,
 	SG_Skarner,
