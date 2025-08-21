@@ -1447,6 +1447,7 @@ enum class champion_id
 	Aurora = 893,
 	Ambessa = 799,
 	Mel = 800,
+	Yunara = 804,
 	Unknown = 5000,
 	TFTChampion,
 	SG_Skarner,
@@ -5307,3 +5308,4 @@ namespace mec
 	mec_circle get_mec( const std::vector<vector>& points );
 	std::vector<vector> make_convex_hull( std::vector<vector> points );
 };
+
