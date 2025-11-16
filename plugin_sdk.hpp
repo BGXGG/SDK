@@ -11,6 +11,7 @@
 #include <unordered_map>
 #include <math.h>
 #include <cmath>
+#include <array>
 
 extern "C++" {
 
@@ -5308,4 +5309,5 @@ namespace mec
 	mec_circle get_mec( const std::vector<vector>& points );
 	std::vector<vector> make_convex_hull( std::vector<vector> points );
 };
+
 
